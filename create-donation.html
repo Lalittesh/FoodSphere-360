@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>List Surplus Food — FoodSphere 360</title>
+<meta name="description" content="List your surplus food details on FoodSphere 360 to instantly match with nearby verified NGOs and shelters.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<header class="navbar">
+  <div class="container">
+    <a href="index.html" class="brand" data-transition>
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 6 6 9 6 13a6 6 0 0 0 12 0c0-4-2-7-6-11z"/></svg>
+      </span>
+      FoodSphere<span class="accent">360</span>
+    </a>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="donor-dashboard.html" data-transition>Dashboard</a>
+      <a href="create-donation.html" class="active">List Food</a>
+      <a href="my-donations.html" data-transition>My Donations</a>
+    </nav>
+
+    <div class="nav-actions">
+      <span class="nav-user-info" style="font-weight:600; font-size:.9rem; color:var(--ink-soft); margin-right:15px;">
+        <span class="nav-user-name">Loading...</span> (<span class="nav-user-role" style="font-size:0.7rem; background:var(--sage); color:var(--green); padding:3px 8px; border-radius:10px;">DONOR</span>)
+      </span>
+      <button class="btn btn-ghost logout-btn">Log Out</button>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="dashboard-hero">
+  <div class="container">
+    
+    <div style="max-width: 600px; margin: 0 auto;">
+      <div style="margin-bottom: 30px;">
+        <a href="donor-dashboard.html" class="auth-back" style="margin-bottom: 16px;" data-transition>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          Back to Dashboard
+        </a>
+        <h2 style="font-size: 2.2rem; margin-top: 10px;">List Surplus Food</h2>
+        <p style="color: var(--ink-soft); margin-top: 6px;">Fill in the surplus details. Our AI will automatically verify quality and match with verified local NGOs.</p>
+      </div>
+
+      <div class="dashboard-card" style="padding: 36px;">
+        <form id="createDonationForm" novalidate>
+          
+          <div class="field">
+            <label for="foodItem">Food Item Description</label>
+            <div class="input-shell">
+              <input type="text" id="foodItem" placeholder="e.g. 5 Large Veg Biryani, 30 Wheat Rotis" required>
+            </div>
+            <div class="field-hint">Be specific about the food type for faster NGO matching.</div>
+          </div>
+
+          <div class="field">
+            <label for="quantity">Quantity / Servings</label>
+            <div class="input-shell">
+              <input type="text" id="quantity" placeholder="e.g. 50 servings, 15 kg" required>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="expiry">Safe Consumption Window (Expiry)</label>
+            <div class="input-shell">
+              <input type="text" id="expiry" placeholder="e.g. Tonight by 11:30 PM, 3 hours from now" required>
+            </div>
+            <div class="field-hint">Crucial for food safety. When does it need to be consumed by?</div>
+          </div>
+
+          <div class="field" style="margin-bottom: 26px;">
+            <label for="pickupNotes">Pickup Details &amp; Instructions</label>
+            <div class="input-shell" style="align-items: flex-start; padding: 6px 0;">
+              <textarea id="pickupNotes" placeholder="e.g. Enter through the service gate. Park at bay 3. Ask for Manager Karan." style="width: 100%; border: none; background: transparent; padding: 10px 14px; font-family: inherit; font-size: .93rem; color: var(--ink); outline: none; min-height: 100px; resize: vertical;"></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-accent btn-block btn-lg">
+            <span class="btn-label">Activate Listing</span>
+            <span class="btn-spinner"></span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-bottom" style="border-top: none; padding: 40px 0;">
+      <span>© 2026 FoodSphere 360. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

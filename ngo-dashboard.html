@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NGO Dashboard — FoodSphere 360</title>
+<meta name="description" content="Browse available food listings, manage your accepted pickups, and track community feeding impact on FoodSphere 360.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<header class="navbar">
+  <div class="container">
+    <a href="index.html" class="brand" data-transition>
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 6 6 9 6 13a6 6 0 0 0 12 0c0-4-2-7-6-11z"/></svg>
+      </span>
+      FoodSphere<span class="accent">360</span>
+    </a>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="ngo-dashboard.html" class="active">Dashboard</a>
+      <a href="available-donations.html" data-transition>Available Donations</a>
+      <a href="accepted-donations.html" data-transition>Accepted Pickups</a>
+    </nav>
+
+    <div class="nav-actions">
+      <span class="nav-user-info" style="font-weight:600; font-size:.9rem; color:var(--ink-soft); margin-right:15px;">
+        <span class="nav-user-name">Loading...</span> (<span class="nav-user-role" style="font-size:0.7rem; background:var(--orange-soft); color:var(--orange); padding:3px 8px; border-radius:10px;">NGO</span>)
+      </span>
+      <button class="btn btn-ghost logout-btn">Log Out</button>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="dashboard-hero">
+  <div class="container">
+    
+    <div class="dashboard-title-row">
+      <div>
+        <span class="eyebrow">NGO Workspace</span>
+        <h2 style="font-size: clamp(2rem, 3.5vw, 2.8rem); margin-top: 10px;">Welcome back, <span class="nav-user-name" style="color: var(--green);">NGO</span>!</h2>
+        <p style="color: var(--ink-soft); margin-top: 8px;">Find matching surplus food near you and manage active distributions.</p>
+      </div>
+      <div>
+        <a href="available-donations.html" class="btn btn-accent btn-lg" data-transition>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          Browse Available Food
+        </a>
+      </div>
+    </div>
+
+    <!-- STATS BLOCKS -->
+    <div class="impact-grid" style="margin-bottom: 40px;">
+      <div class="impact-card" style="padding: 24px;">
+        <div class="ic-icon" style="background:var(--orange-soft);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF7A33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <h3>12 matched</h3>
+        <p class="ic-label" style="margin-bottom: 0;">Completed Pickups</p>
+      </div>
+
+      <div class="impact-card" style="padding: 24px;">
+        <div class="ic-icon" style="background:var(--sage);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1B6B4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        </div>
+        <h3>120 families</h3>
+        <p class="ic-label" style="margin-bottom: 0;">People Nourished</p>
+      </div>
+
+      <div class="impact-card" style="padding: 24px;">
+        <div class="ic-icon" style="background:var(--orange-soft);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF7A33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <h3>420 kg</h3>
+        <p class="ic-label" style="margin-bottom: 0;">Food Rescued</p>
+      </div>
+
+      <div class="impact-card" style="padding: 24px;">
+        <div class="ic-icon" style="background:var(--sage);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1B6B4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7M6 9v7a2 2 0 0 0 2 2h7"/></svg>
+        </div>
+        <h3>2.4 km</h3>
+        <p class="ic-label" style="margin-bottom: 0;">Average Travel Radius</p>
+      </div>
+    </div>
+
+    <!-- ACTIVE PICKUPS TABLE -->
+    <div class="dashboard-card">
+      <h3>Active Accepted Pickups</h3>
+      <div class="dashboard-table-container" id="acceptedDonationsList">
+        <div class="empty-state">
+          <p>Loading your listings...</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-bottom" style="border-top: none; padding: 40px 0;">
+      <span>© 2026 FoodSphere 360. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

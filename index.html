@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoodSphere 360 — Transform Surplus Food Into Social Impact</title>
+<meta name="description" content="FoodSphere 360 is an AI-powered platform connecting restaurants, hotels, bakeries, and households with NGOs and shelters to turn surplus food into social impact.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ============================================================
+     NAVBAR
+============================================================ -->
+<header class="navbar">
+  <div class="container">
+    <a href="index.html" class="brand" data-transition>
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 6 6 9 6 13a6 6 0 0 0 12 0c0-4-2-7-6-11z"/></svg>
+      </span>
+      FoodSphere<span class="accent">360</span>
+    </a>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="#home" class="active">Home</a>
+      <a href="#about">About</a>
+      <a href="#impact">Impact</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="#contact">Contact</a>
+    </nav>
+
+    <div class="nav-actions">
+      <a href="login.html" class="btn btn-ghost" data-transition>Log In</a>
+      <a href="register.html" class="btn btn-primary" data-transition>
+        <span class="btn-label">Register</span>
+        <span class="btn-spinner"></span>
+      </a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ============================================================
+     HERO
+============================================================ -->
+<section class="hero" id="home">
+  <div class="container">
+    <div class="hero-copy">
+      <span class="eyebrow reveal">AI-Powered Food Rescue Network</span>
+      <h1 class="reveal reveal-delay-1">
+        Transform Surplus Food Into
+        <span class="underline-orange">Social Impact
+          <svg viewBox="0 0 200 14" preserveAspectRatio="none"><path d="M2 10 Q 50 2, 100 8 T 198 6" fill="none" stroke="#FF7A33" stroke-width="4" stroke-linecap="round"/></svg>
+        </span>
+      </h1>
+      <p class="reveal reveal-delay-2">
+        FoodSphere 360 connects restaurants, hotels, bakeries, and households with NGOs, orphanages, and shelters — using <span id="typedText" style="color:var(--green); font-weight:700;"></span> to match surplus food with the people who need it, before it ever reaches a landfill.
+      </p>
+      <div class="hero-actions reveal reveal-delay-3">
+        <a href="register.html" class="btn btn-accent btn-lg" data-transition>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9a2 2 0 0 0-2 2v9"/><path d="M14 17H5a2 2 0 0 1-2-2V6"/><path d="M14 3l3 3-3 3"/><path d="M10 21l-3-3 3-3"/></svg>
+          Donate Food
+        </a>
+        <a href="#impact" class="btn btn-ghost btn-lg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          Find Donations
+        </a>
+      </div>
+      <div class="hero-trust reveal reveal-delay-4">
+        <div class="stack-avatars">
+          <span style="background:#1B6B4A;">RK</span>
+          <span style="background:#FF7A33;">AF</span>
+          <span style="background:#2E8C63;">HM</span>
+          <span style="background:#E5601C;">SS</span>
+        </div>
+        <p><strong>1,200+</strong> donors and NGOs already on board</p>
+      </div>
+    </div>
+
+    <div class="hero-visual reveal reveal-delay-2">
+      <svg class="flow-ring" viewBox="0 0 400 400" fill="none">
+        <circle cx="200" cy="200" r="168" stroke="#CFE6D8" stroke-width="2" stroke-dasharray="3 7"/>
+        <circle cx="200" cy="200" r="120" fill="#E8F3EC"/>
+        <circle cx="200" cy="200" r="120" stroke="#1B6B4A" stroke-width="1.5" opacity=".3"/>
+        <g class="ring-track">
+          <g class="flow-node"><circle cx="200" cy="32" r="22" fill="#1B6B4A"/><path d="M192 32a8 8 0 1 1 16 0 8 8 0 0 1-16 0z" fill="none"/></g>
+          <g class="flow-node"><circle cx="368" cy="200" r="22" fill="#FF7A33"/></g>
+          <g class="flow-node"><circle cx="200" cy="368" r="22" fill="#2E8C63"/></g>
+          <g class="flow-node"><circle cx="32" cy="200" r="22" fill="#E5601C"/></g>
+        </g>
+        <g fill="#fff" font-family="Inter, sans-serif">
+          <text x="200" y="37" text-anchor="middle" font-size="13" font-weight="700">🍽</text>
+          <text x="368" y="205" text-anchor="middle" font-size="13" font-weight="700">🤝</text>
+          <text x="200" y="373" text-anchor="middle" font-size="13" font-weight="700">🚚</text>
+          <text x="32" y="205" text-anchor="middle" font-size="13" font-weight="700">📊</text>
+        </g>
+        <text x="200" y="195" text-anchor="middle" font-family="Fraunces, serif" font-size="34" font-weight="700" fill="#16241D">360°</text>
+        <text x="200" y="220" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" font-weight="600" fill="#43544A">Surplus → Impact</text>
+      </svg>
+
+      <div class="float-card float-card--1">
+        <span class="fc-icon" style="background:var(--sage);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B6B4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </span>
+        <span><span class="fc-num">48,210</span><br><span class="fc-label">Meals Saved</span></span>
+      </div>
+      <div class="float-card float-card--2">
+        <span class="fc-icon" style="background:var(--orange-soft);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF7A33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </span>
+        <span><span class="fc-num">312</span><br><span class="fc-label">Active NGOs</span></span>
+      </div>
+      <div class="float-card float-card--3">
+        <span class="fc-icon" style="background:var(--sage);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B6B4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/></svg>
+        </span>
+        <span><span class="fc-num">9.2t</span><br><span class="fc-label">Waste Reduced</span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     STATS STRIP
+============================================================ -->
+<section class="stats-strip">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-num" data-target="48210">0</div>
+        <p class="stat-label">Meals Saved</p>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" data-target="312">0</div>
+        <p class="stat-label">Active NGOs</p>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" data-target="6840">0</div>
+        <p class="stat-label">Donations Completed</p>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" data-target="9">0<span class="stat-suffix">.2t</span></div>
+        <p class="stat-label">Food Waste Reduced</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     ABOUT / IMPACT VISUALIZATION
+============================================================ -->
+<section class="section-pad" id="about">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Our Impact</span>
+      <h2>Every donation creates a ripple effect</h2>
+      <p>From kitchen to community, FoodSphere 360 tracks the full journey of surplus food — measuring exactly how much waste, carbon, and hunger it prevents.</p>
+    </div>
+
+    <div class="impact-grid" id="impact">
+      <div class="impact-card reveal">
+        <div class="ic-icon" style="background:var(--sage);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1B6B4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        </div>
+        <h3>21.4 tons</h3>
+        <p class="ic-label">Carbon Emissions Saved</p>
+        <div class="ic-bar"><span data-width="82%" style="background:var(--green);"></span></div>
+        <p class="ic-note">Equivalent to planting 980 trees this year</p>
+      </div>
+
+      <div class="impact-card reveal reveal-delay-1">
+        <div class="ic-icon" style="background:var(--orange-soft);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF7A33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v8H3z"/><path d="M14 11h4l3 3v1h-7z"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></svg>
+        </div>
+        <h3>9.2 tons</h3>
+        <p class="ic-label">Food Distributed</p>
+        <div class="ic-bar"><span data-width="68%" style="background:var(--orange);"></span></div>
+        <p class="ic-note">Delivered across 41 cities to date</p>
+      </div>
+
+      <div class="impact-card reveal reveal-delay-2">
+        <div class="ic-icon" style="background:var(--sage);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1B6B4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h3>14,680</h3>
+        <p class="ic-label">Families Helped</p>
+        <div class="ic-bar"><span data-width="74%" style="background:var(--green);"></span></div>
+        <p class="ic-note">Average of 3.4 meals per family per week</p>
+      </div>
+
+      <div class="impact-card reveal reveal-delay-3">
+        <div class="ic-icon" style="background:var(--orange-soft);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF7A33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
+        </div>
+        <h3>+38%</h3>
+        <p class="ic-label">NGO Network Growth</p>
+        <div class="ic-bar"><span data-width="58%" style="background:var(--orange);"></span></div>
+        <p class="ic-note">Year-over-year partner expansion</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     HOW IT WORKS — TIMELINE
+============================================================ -->
+<section class="section-pad" id="how-it-works" style="background:var(--white); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+  <div class="container">
+    <div class="section-head center reveal">
+      <span class="eyebrow">How It Works</span>
+      <h2>From surplus to impact in five steps</h2>
+      <p>Our AI handles the heavy lifting — quality checks, matching, and logistics — so good food moves fast.</p>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-track"></div>
+      <div class="timeline-track-fill"></div>
+
+      <div class="timeline-step">
+        <div class="timeline-node">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9a2 2 0 0 0-2 2v9"/><path d="M14 17H5a2 2 0 0 1-2-2V6"/><path d="M14 3l3 3-3 3"/><path d="M10 21l-3-3 3-3"/></svg>
+        </div>
+        <div class="timeline-tag">Step 1</div>
+        <h4>Donate</h4>
+        <p>List surplus food in under 2 minutes with photos, quantity, and pickup window.</p>
+      </div>
+
+      <div class="timeline-step">
+        <div class="timeline-node">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.8 4.6L18 8l-4.2 1.4L12 14l-1.8-4.6L6 8l4.2-1.4z"/><path d="M19 14l.9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9z"/></svg>
+        </div>
+        <div class="timeline-tag">Step 2</div>
+        <h4>AI Analysis</h4>
+        <p>Our model checks freshness, quantity, and safe consumption windows automatically.</p>
+      </div>
+
+      <div class="timeline-step">
+        <div class="timeline-node">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.13.41.4.76.76 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </div>
+        <div class="timeline-tag">Step 3</div>
+        <h4>Smart Matching</h4>
+        <p>The nearest NGO with matching need and capacity is notified instantly.</p>
+      </div>
+
+      <div class="timeline-step">
+        <div class="timeline-node">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v8H3z"/><path d="M14 11h4l3 3v1h-7z"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></svg>
+        </div>
+        <div class="timeline-tag">Step 4</div>
+        <h4>Pickup</h4>
+        <p>A volunteer or partner driver collects and delivers food on an optimized route.</p>
+      </div>
+
+      <div class="timeline-step">
+        <div class="timeline-node">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
+        </div>
+        <div class="timeline-tag">Step 5</div>
+        <h4>Impact Tracking</h4>
+        <p>Donors get a receipt with meals saved, CO₂ avoided, and the NGO they helped.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     AI FEATURES
+============================================================ -->
+<section class="section-pad">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Built On AI</span>
+      <h2>Intelligence behind every match</h2>
+      <p>FoodSphere 360 uses machine learning to make food rescue faster, safer, and more reliable than manual coordination ever could be.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="fi-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <h3>Smart Food Quality Analysis</h3>
+        <p>Computer vision evaluates photos of donated food to flag freshness and estimate safe shelf life before pickup.</p>
+        <span class="fi-tag">Vision Model</span>
+      </div>
+
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="fi-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M3 12h3M18 12h3M12 3v3M12 18v3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>
+        </div>
+        <h3>AI NGO Matching</h3>
+        <p>A recommendation engine pairs each donation with the NGO best positioned to use it — by distance, capacity, and need.</p>
+        <span class="fi-tag">Matching Engine</span>
+      </div>
+
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="fi-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l3-5 3 3 5-7"/><circle cx="18" cy="7" r="1.5"/></svg>
+        </div>
+        <h3>Demand Forecasting</h3>
+        <p>Predictive models anticipate surplus patterns and shelter needs, so donors and NGOs can plan ahead together.</p>
+        <span class="fi-tag">Predictive Model</span>
+      </div>
+
+      <div class="feature-card reveal reveal-delay-3">
+        <div class="fi-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        </div>
+        <h3>Impact Analytics</h3>
+        <p>Every donor and NGO gets a live dashboard of meals saved, carbon avoided, and community reach.</p>
+        <span class="fi-tag">Analytics Dashboard</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     LIVE ACTIVITY FEED
+============================================================ -->
+<section class="section-pad" style="background:var(--sage);">
+  <div class="container">
+    <div class="activity-wrap">
+      <div class="reveal">
+        <span class="eyebrow">Happening Right Now</span>
+        <h2 style="font-size:clamp(1.7rem,2.6vw,2.3rem); margin:16px 0 14px;">Watch impact unfold in real time</h2>
+        <p style="color:var(--ink-soft); margin-bottom:26px;">Every donation, match, and pickup flows through our platform live. Here's a snapshot of activity across the network right now.</p>
+        <a href="register.html" class="btn btn-primary" data-transition>
+          <span class="btn-label">Join the network</span>
+          <span class="btn-spinner"></span>
+        </a>
+      </div>
+
+      <div class="activity-feed reveal reveal-delay-1">
+        <div class="activity-feed-head">
+          <h4>Live Activity</h4>
+          <span class="live-dot">LIVE</span>
+        </div>
+        <div class="activity-list" id="activityList"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     MAP PREVIEW
+============================================================ -->
+<section class="section-pad">
+  <div class="container">
+    <div class="section-head center reveal">
+      <span class="eyebrow">Network Coverage</span>
+      <h2>Active donation hotspots across India</h2>
+      <p>Live markers represent ongoing donations and NGO pickups across our growing city network.</p>
+    </div>
+
+    <div class="map-shell reveal">
+      <div class="map-grid-lines"></div>
+
+      <span class="map-city-label" style="top:18%; left:22%;">Delhi NCR</span>
+      <span class="map-marker" style="top:21%; left:30%;">
+        <span class="map-tooltip">Hotel Meridian · 80 meals</span>
+      </span>
+
+      <span class="map-city-label" style="top:38%; left:64%;">Kolkata</span>
+      <span class="map-marker green" style="top:42%; left:72%;">
+        <span class="map-tooltip">Asha Foundation · accepted</span>
+      </span>
+
+      <span class="map-city-label" style="top:58%; left:18%;">Mumbai</span>
+      <span class="map-marker" style="top:62%; left:26%;">
+        <span class="map-tooltip">Green Leaf Bakery · 35 meals</span>
+      </span>
+
+      <span class="map-city-label" style="top:50%; left:42%;">Hyderabad</span>
+      <span class="map-marker green" style="top:54%; left:48%;">
+        <span class="map-tooltip">Sunrise Shelter · matched</span>
+      </span>
+
+      <span class="map-city-label" style="top:78%; left:38%;">Bengaluru</span>
+      <span class="map-marker" style="top:81%; left:45%;">
+        <span class="map-tooltip">Spice Route Kitchen · 120 meals</span>
+      </span>
+
+      <span class="map-city-label" style="top:80%; left:62%;">Chennai</span>
+      <span class="map-marker green" style="top:84%; left:68%;">
+        <span class="map-tooltip">Little Stars Orphanage · received</span>
+      </span>
+
+      <span class="map-city-label" style="top:30%; left:50%;">Lucknow</span>
+      <span class="map-marker" style="top:33%; left:56%;">
+        <span class="map-tooltip">Priya R. · household surplus</span>
+      </span>
+
+      <div class="map-legend">
+        <span><i style="background:var(--orange);"></i> Active donation</span>
+        <span><i style="background:var(--green);"></i> NGO match</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SUCCESS STORIES CAROUSEL
+============================================================ -->
+<section class="section-pad" style="background:var(--white); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+  <div class="container">
+    <div class="section-head center reveal">
+      <span class="eyebrow">Success Stories</span>
+      <h2>Real partners, real impact</h2>
+      <p>Hear from the restaurants, hotels, and NGOs building a more sustainable food system with FoodSphere 360.</p>
+    </div>
+
+    <div class="carousel reveal">
+      <button class="carousel-arrow prev" aria-label="Previous testimonial">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button class="carousel-arrow next" aria-label="Next testimonial">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+
+      <div class="carousel-track">
+        <div class="testimonial-slide active">
+          <div class="testimonial-quote-mark">"</div>
+          <p class="t-quote">We used to throw away unsold banquet food every weekend. With FoodSphere 360, it's picked up within the hour and goes straight to families who need it.</p>
+          <div class="t-person">
+            <span class="t-avatar" style="background:#1B6B4A;">RM</span>
+            <div class="t-meta">
+              <div class="t-name">Rahul Mehta</div>
+              <div class="t-role">Operations Head, Hotel Meridian</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-slide">
+          <div class="testimonial-quote-mark">"</div>
+          <p class="t-quote">The AI matching is shockingly accurate. We get notified about nearby donations that actually fit what our shelter can store and distribute that day.</p>
+          <div class="t-person">
+            <span class="t-avatar" style="background:#FF7A33;">AS</span>
+            <div class="t-meta">
+              <div class="t-name">Anjali Sharma</div>
+              <div class="t-role">Director, Asha Foundation</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-slide">
+          <div class="testimonial-quote-mark">"</div>
+          <p class="t-quote">Our bakery donates unsold bread every evening. The impact dashboard shows exactly how many families we've helped — it keeps the whole team motivated.</p>
+          <div class="t-person">
+            <span class="t-avatar" style="background:#2E8C63;">KV</span>
+            <div class="t-meta">
+              <div class="t-name">Karan Verma</div>
+              <div class="t-role">Owner, Green Leaf Bakery</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-slide">
+          <div class="testimonial-quote-mark">"</div>
+          <p class="t-quote">Pickup logistics used to be our biggest headache. Now routes are optimized automatically and our volunteers know exactly where to go.</p>
+          <div class="t-person">
+            <span class="t-avatar" style="background:#E5601C;">SN</span>
+            <div class="t-meta">
+              <div class="t-name">Sunita Nair</div>
+              <div class="t-role">Coordinator, Sunrise Shelter</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="carousel-dots"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CTA BANNER
+============================================================ -->
+<section class="section-pad">
+  <div class="container">
+    <div class="cta-banner reveal">
+      <div>
+        <h2>Ready to turn surplus into impact?</h2>
+        <p>Join 1,200+ donors and NGOs already reducing food waste and feeding communities with FoodSphere 360.</p>
+      </div>
+      <div class="cta-actions">
+        <a href="register.html" class="btn btn-accent btn-lg" data-transition>Get Started Free</a>
+        <a href="#how-it-works" class="btn btn-outline-light btn-lg">See How It Works</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+============================================================ -->
+<footer class="footer" id="contact">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="brand" data-transition>
+          <span class="brand-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 6 6 9 6 13a6 6 0 0 0 12 0c0-4-2-7-6-11z"/></svg>
+          </span>
+          FoodSphere<span class="accent">360</span>
+        </a>
+        <p>An AI-powered platform connecting surplus food with the people who need it most — one donation at a time.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+          <a href="#" aria-label="Twitter / X"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l16 16M20 4L4 20"/></svg></a>
+          <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a>
+          <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/><path d="M10 9h4v2a4 4 0 0 1 4-2 4 4 0 0 1 4 4v7h-4v-6a2 2 0 0 0-4 0v6h-4z"/></svg></a>
+        </div>
+      </div>
+
+      <div>
+        <h5>Quick Links</h5>
+        <ul class="footer-links">
+          <li><a href="#home">Home</a></li>
+          <li><a href="#about">About Us</a></li>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="register.html" data-transition>Become a Donor</a></li>
+          <li><a href="register.html" data-transition>Partner as NGO</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h5>Resources</h5>
+        <ul class="footer-links">
+          <li><a href="#impact">Impact Report</a></li>
+          <li><a href="#">Food Safety Guidelines</a></li>
+          <li><a href="#">NGO Verification</a></li>
+          <li><a href="#">API for Partners</a></li>
+          <li><a href="#">Careers</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h5>Stay Updated</h5>
+        <ul class="footer-contact">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>4th Floor, Innovation Hub, Anna Salai, Chennai, India</span>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <span>+91 44 6789 1200</span>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>
+            <span>hello@foodsphere360.org</span>
+          </li>
+        </ul>
+        <form class="newsletter-form">
+          <input type="email" placeholder="Your email address" aria-label="Email for newsletter" required>
+          <button type="submit" aria-label="Subscribe">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>
+          </button>
+        </form>
+        <p class="newsletter-note">Monthly impact reports. No spam, ever.</p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© 2026 FoodSphere 360. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Cookie Policy</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<button class="back-to-top" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script src="script.js"></script>
+</body>
+</html>
