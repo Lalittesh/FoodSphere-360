@@ -799,6 +799,32 @@
     });
   }
 
+  /* Helper to create custom animated Leaflet markers using existing CSS pulse rules */
+  function createCustomIcon(isGreen) {
+    if (!window.L) return null;
+    return L.divIcon({
+      className: 'custom-leaflet-marker',
+      html: `<span class="map-marker ${isGreen ? 'green' : ''}" style="position:relative; display:block; margin:0;"></span>`,
+      iconSize: [18, 18],
+      iconAnchor: [9, 9]
+    });
+  }
+
+  /* Food category photo keyword categorizer */
+  function getFoodPhoto(name) {
+    const n = name.toLowerCase();
+    if (n.includes('biryani')) return 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&auto=format&fit=crop&q=80';
+    if (n.includes('idly') || n.includes('idli') || n.includes('sambar')) return 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=600&auto=format&fit=crop&q=80';
+    if (n.includes('lemon')) return 'https://images.unsplash.com/photo-1541832676-9b763b0239ab?w=600&auto=format&fit=crop&q=80';
+    if (n.includes('curd')) return 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78?w=600&auto=format&fit=crop&q=80';
+    if (n.includes('tomato')) return 'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=600&auto=format&fit=crop&q=80';
+    if (n.includes('chapati') || n.includes('roti')) return 'https://images.unsplash.com/photo-1626132647523-66f5bf380027?w=600&auto=format&fit=crop&q=80';
+    if (n.includes('south indian') || n.includes('meals') || n.includes('parcel')) return 'https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?w=600&auto=format&fit=crop&q=80';
+    if (n.includes('dosa')) return 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=600&auto=format&fit=crop&q=80';
+    if (n.includes('upma') || n.includes('pongal')) return 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=600&auto=format&fit=crop&q=80';
+    return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80';
+  }
+
   /* Seed data for offline mockup operations */
   function seedInitialData() {
     // Seed test users if none exist
@@ -806,41 +832,271 @@
     if (!users || JSON.parse(users).length === 0) {
       const sampleUsers = [
         { name: 'Hotel Meridian', email: 'donor@fs.com', phone: '+91 98765 43210', password: 'password123', role: 'donor' },
-        { name: 'Asha Foundation', email: 'ngo@fs.com', phone: '+91 87654 32109', password: 'password123', role: 'ngo' }
+        { name: 'Food Relief Foundation', email: 'ngo@fs.com', phone: '+91 87654 32109', password: 'password123', role: 'ngo' },
+        { name: 'Community Kitchen Madurai', email: 'community@fs.com', phone: '+91 76543 21098', password: 'password123', role: 'ngo' },
+        { name: 'Helping Hands NGO', email: 'helping@fs.com', phone: '+91 65432 10987', password: 'password123', role: 'ngo' },
+        { name: 'Annai Food Support Trust', email: 'annai@fs.com', phone: '+91 54321 09876', password: 'password123', role: 'ngo' }
       ];
       localStorage.setItem('fs360_users', JSON.stringify(sampleUsers));
     }
 
-    // Seed sample donations if none exist
+    // Seed sample donations centered around Madurai Tamil Nadu
     const donations = localStorage.getItem('fs360_donations');
     if (!donations || JSON.parse(donations).length === 0) {
       const sampleDonations = [
         {
-          id: 'don_sample1',
-          foodItem: 'Surplus Banquet Veg Biryani',
-          quantity: '50 meals',
-          expiry: 'Tonight by 11 PM',
-          pickupNotes: 'Gate 3, service entry. Ask for Chef Rahul.',
+          id: 'don_1',
+          foodItem: 'Vegetable Biryani',
+          quantity: '50 Meals',
+          expiry: 'Pickup Before: 7:00 PM',
+          pickupNotes: 'Contact Manager Chef Rahul at standard service gate 3.',
           donorName: 'Hotel Meridian',
           donorEmail: 'donor@fs.com',
           donorPhone: '+91 98765 43210',
           status: 'Pending',
-          matchedNgo: ''
+          matchedNgo: '',
+          latitude: 9.9215,
+          longitude: 78.1130,
+          photoUrl: getFoodPhoto('Vegetable Biryani')
         },
         {
-          id: 'don_sample2',
-          foodItem: 'Assorted Bread and Croissants',
-          quantity: '30 portions',
-          expiry: 'Tomorrow morning',
-          pickupNotes: 'Front counter pickup after shop closes.',
-          donorName: 'Green Leaf Bakery',
-          donorEmail: 'karan@greenleaf.com',
-          donorPhone: '+91 88888 77777',
+          id: 'don_2',
+          foodItem: 'South Indian Meals',
+          quantity: '30 Meals',
+          expiry: 'Pickup Before: 8:00 PM',
+          pickupNotes: 'Front desk collection counter, packages loaded.',
+          donorName: 'Hotel Meridian',
+          donorEmail: 'donor@fs.com',
+          donorPhone: '+91 98765 43210',
           status: 'Pending',
-          matchedNgo: ''
+          matchedNgo: '',
+          latitude: 9.9250,
+          longitude: 78.1220,
+          photoUrl: getFoodPhoto('South Indian Meals')
+        },
+        {
+          id: 'don_3',
+          foodItem: 'Idly & Sambar',
+          quantity: '40 Servings',
+          expiry: 'Pickup Before: 10:00 AM',
+          pickupNotes: 'Freshly prepared breakfast batch. Direct kitchen corridor.',
+          donorName: 'Annai Food Support Trust',
+          donorEmail: 'annai@fs.com',
+          donorPhone: '+91 54321 09876',
+          status: 'Pending',
+          matchedNgo: '',
+          latitude: 9.9180,
+          longitude: 78.1110,
+          photoUrl: getFoodPhoto('Idly & Sambar')
+        },
+        {
+          id: 'don_4',
+          foodItem: 'Lemon Rice',
+          quantity: '25 Packs',
+          expiry: 'Pickup Before: 6:00 PM',
+          pickupNotes: 'Individually wrapped lunch packs.',
+          donorName: 'Hotel Meridian',
+          donorEmail: 'donor@fs.com',
+          donorPhone: '+91 98765 43210',
+          status: 'Pending',
+          matchedNgo: '',
+          latitude: 9.9260,
+          longitude: 78.1150,
+          photoUrl: getFoodPhoto('Lemon Rice')
+        },
+        {
+          id: 'don_5',
+          foodItem: 'Curd Rice',
+          quantity: '20 Packs',
+          expiry: 'Pickup Before: 5:00 PM',
+          pickupNotes: 'Packed in insulated boxes ready to carry.',
+          donorName: 'Hotel Meridian',
+          donorEmail: 'donor@fs.com',
+          donorPhone: '+91 98765 43210',
+          status: 'Pending',
+          matchedNgo: '',
+          latitude: 9.9200,
+          longitude: 78.1280,
+          photoUrl: getFoodPhoto('Curd Rice')
+        },
+        {
+          id: 'don_6',
+          foodItem: 'Tomato Rice',
+          quantity: '15 Packs',
+          expiry: 'Pickup Before: 7:00 PM',
+          pickupNotes: 'Service entrance collection desk.',
+          donorName: 'Hotel Meridian',
+          donorEmail: 'donor@fs.com',
+          donorPhone: '+91 98765 43210',
+          status: 'Pending',
+          matchedNgo: '',
+          latitude: 9.9310,
+          longitude: 78.1210,
+          photoUrl: getFoodPhoto('Tomato Rice')
+        },
+        {
+          id: 'don_7',
+          foodItem: 'Chapati Meals',
+          quantity: '35 Meals',
+          expiry: 'Pickup Before: 9:00 PM',
+          pickupNotes: 'Comes with dry subji. Collection box ready.',
+          donorName: 'Hotel Meridian',
+          donorEmail: 'donor@fs.com',
+          donorPhone: '+91 98765 43210',
+          status: 'Pending',
+          matchedNgo: '',
+          latitude: 9.9140,
+          longitude: 78.1070,
+          photoUrl: getFoodPhoto('Chapati Meals')
+        },
+        {
+          id: 'don_8',
+          foodItem: 'Meals Parcel',
+          quantity: '60 Packs',
+          expiry: 'Pickup Before: 8:30 PM',
+          pickupNotes: 'Full packed parcel boxes.',
+          donorName: 'Hotel Meridian',
+          donorEmail: 'donor@fs.com',
+          donorPhone: '+91 98765 43210',
+          status: 'Pending',
+          matchedNgo: '',
+          latitude: 9.9290,
+          longitude: 78.1050,
+          photoUrl: getFoodPhoto('Meals Parcel')
         }
       ];
       localStorage.setItem('fs360_donations', JSON.stringify(sampleDonations));
+    }
+  }
+
+  /* Map initialization scripts */
+  function initHomepageMap() {
+    const mapEl = $('#map');
+    if (!mapEl || !window.L) return;
+
+    // Center on Madurai Tamil Nadu
+    const map = L.map('map').setView([9.9252, 78.1198], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const markers = [
+      { coords: [9.9197, 78.1105], title: 'Madurai Junction Pickup Hub', desc: 'Multiple Food Collections<br>Active Pickup Point', green: false },
+      { coords: [9.9195, 78.1193], title: 'Meenakshi Temple Area', desc: 'High Donation Activity Area<br>Nearby NGOs Available', green: false },
+      { coords: [9.9285, 78.1250], title: 'Food Relief Foundation', desc: 'Food Relief Foundation<br>Accepting Donations<br>People Served: 1200+', green: true },
+      { coords: [9.9320, 78.1090], title: 'Community Kitchen Madurai', desc: 'Community Kitchen Madurai<br>Food Distribution Center', green: true },
+      { coords: [9.9215, 78.1130], title: 'Restaurant Donor', desc: 'Vegetable Biryani<br>50 Meals Available<br>Pickup Before 7 PM', green: false },
+      { coords: [9.9250, 78.1220], title: 'Hotel Donor', desc: 'South Indian Meals<br>30 Meals Available<br>Pickup Before 8 PM', green: false }
+    ];
+
+    const leafletMarkers = [];
+    markers.forEach(m => {
+      const marker = L.marker(m.coords, { icon: createCustomIcon(m.green) })
+        .addTo(map)
+        .bindPopup(`<strong>${m.title}</strong><br>${m.desc}`);
+      leafletMarkers.push(marker);
+    });
+
+    const group = new L.featureGroup(leafletMarkers);
+    map.fitBounds(group.getBounds().pad(0.1));
+  }
+
+  function initAvailableDonationsMap(pendingDons) {
+    const mapEl = $('#map');
+    if (!mapEl || !window.L) return;
+
+    if (window.availableMap) {
+      window.availableMap.remove();
+    }
+
+    const map = L.map('map').setView([9.9252, 78.1198], 13);
+    window.availableMap = map;
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const markers = [];
+    pendingDons.forEach(d => {
+      if (d.latitude && d.longitude) {
+        const marker = L.marker([d.latitude, d.longitude], { icon: createCustomIcon(false) })
+          .addTo(map)
+          .bindPopup(`
+            <strong>${d.foodItem}</strong><br>
+            Quantity: ${d.quantity}<br>
+            Expiry: ${d.expiry}<br>
+            Donor: ${d.donorName}<br>
+            <button class="btn btn-primary btn-sm accept-map-btn" data-id="${d.id}" style="margin-top:8px; padding:6px 12px; font-size:0.75rem; width:100%;">Accept Match</button>
+          `);
+        markers.push(marker);
+      }
+    });
+
+    map.on('popupopen', (e) => {
+      const btn = e.popup.getElement().querySelector('.accept-map-btn');
+      if (btn) {
+        btn.addEventListener('click', () => {
+          const donId = btn.dataset.id;
+          const currentUser = JSON.parse(localStorage.getItem('fs360_currentUser'));
+          const allDons = JSON.parse(localStorage.getItem('fs360_donations') || '[]');
+
+          const don = allDons.find(item => item.id === donId);
+          if (don) {
+            don.status = 'Accepted';
+            don.matchedNgo = currentUser.name;
+            don.ngoEmail = currentUser.email;
+            localStorage.setItem('fs360_donations', JSON.stringify(allDons));
+            showToast('success', 'Match Accepted', 'Donation successfully claimed! Redirecting to details...');
+            setTimeout(() => {
+              window.location.href = `donation-details.html?id=${donId}`;
+            }, 1200);
+          }
+        });
+      }
+    });
+
+    if (markers.length > 0) {
+      const group = new L.featureGroup(markers);
+      map.fitBounds(group.getBounds().pad(0.1));
+    }
+  }
+
+  function initAcceptedPickupsMap(acceptedDons) {
+    const mapEl = $('#map');
+    if (!mapEl || !window.L) return;
+
+    if (window.acceptedMap) {
+      window.acceptedMap.remove();
+    }
+
+    const map = L.map('map').setView([9.9252, 78.1198], 13);
+    window.acceptedMap = map;
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const markers = [];
+    acceptedDons.forEach(d => {
+      if (d.latitude && d.longitude) {
+        const isDelivered = d.status === 'Delivered';
+        const marker = L.marker([d.latitude, d.longitude], { icon: createCustomIcon(isDelivered) })
+          .addTo(map)
+          .bindPopup(`
+            <strong>${d.foodItem}</strong><br>
+            Quantity: ${d.quantity}<br>
+            Donor: ${d.donorName}<br>
+            Status: <strong>${d.status}</strong><br>
+            <a href="donation-details.html?id=${d.id}" class="btn btn-ghost btn-sm" style="margin-top:8px; padding:6px 12px; font-size:0.75rem; display:inline-block; width:100%; text-align:center;">View Details</a>
+          `);
+        markers.push(marker);
+      }
+    });
+
+    if (markers.length > 0) {
+      const group = new L.featureGroup(markers);
+      map.fitBounds(group.getBounds().pad(0.1));
     }
   }
 
@@ -865,6 +1121,9 @@
       const currentUser = JSON.parse(localStorage.getItem('fs360_currentUser'));
       const donations = JSON.parse(localStorage.getItem('fs360_donations') || '[]');
       
+      const lat = 9.9252 + (Math.random() - 0.5) * 0.02;
+      const lon = 78.1198 + (Math.random() - 0.5) * 0.02;
+
       const newDonation = {
         id: 'don_' + Date.now(),
         foodItem,
@@ -875,7 +1134,10 @@
         donorEmail: currentUser.email,
         donorPhone: currentUser.phone || '',
         status: 'Pending',
-        matchedNgo: ''
+        matchedNgo: '',
+        latitude: lat,
+        longitude: lon,
+        photoUrl: getFoodPhoto(foodItem)
       };
       
       donations.push(newDonation);
@@ -926,7 +1188,12 @@
       
       html += `
         <tr>
-          <td><strong>${d.foodItem}</strong></td>
+          <td>
+            <div style="display:flex; align-items:center; gap:12px;">
+              ${d.photoUrl ? `<img src="${d.photoUrl}" style="width:40px; height:40px; border-radius:6px; object-fit:cover;" loading="lazy">` : ''}
+              <strong>${d.foodItem}</strong>
+            </div>
+          </td>
           <td>${d.quantity}</td>
           <td>${d.expiry}</td>
           <td><span class="status-badge ${statusClass}">${d.status}</span></td>
@@ -945,6 +1212,9 @@
     const donations = JSON.parse(localStorage.getItem('fs360_donations') || '[]');
     const pendingDons = donations.filter(d => d.status === 'Pending');
     
+    // Also initialize Leaflet Map for available donations
+    initAvailableDonationsMap(pendingDons);
+
     if (pendingDons.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
@@ -957,12 +1227,18 @@
     pendingDons.forEach(d => {
       html += `
         <div class="donation-card">
-          <h4>${d.foodItem}</h4>
-          <p class="don-qty">Quantity: <strong>${d.quantity}</strong></p>
-          <p class="don-exp">Expiry: <strong>${d.expiry}</strong></p>
-          <p class="don-donor">Listed by: <strong>${d.donorName}</strong></p>
-          <div class="don-card-actions">
-            <button class="btn btn-primary accept-don-btn" data-id="${d.id}">Accept Match</button>
+          ${d.photoUrl ? `
+            <div class="don-photo-wrap">
+              <img src="${d.photoUrl}" alt="${d.foodItem}" loading="lazy" class="don-photo">
+            </div>` : ''}
+          <div class="don-card-content">
+            <h4>${d.foodItem}</h4>
+            <p class="don-qty">Quantity: <strong>${d.quantity}</strong></p>
+            <p class="don-exp">Expiry: <strong>${d.expiry}</strong></p>
+            <p class="don-donor">Listed by: <strong>${d.donorName}</strong></p>
+            <div class="don-card-actions">
+              <button class="btn btn-primary accept-don-btn" data-id="${d.id}">Accept Match</button>
+            </div>
           </div>
         </div>`;
     });
@@ -998,6 +1274,9 @@
     const donations = JSON.parse(localStorage.getItem('fs360_donations') || '[]');
     const acceptedDons = donations.filter(d => d.ngoEmail === currentUser.email);
     
+    // Also initialize Leaflet Map on dashboard for active pickups routing
+    initAcceptedPickupsMap(acceptedDons);
+
     if (acceptedDons.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
@@ -1026,7 +1305,12 @@
       
       html += `
         <tr>
-          <td><strong>${d.foodItem}</strong></td>
+          <td>
+            <div style="display:flex; align-items:center; gap:12px;">
+              ${d.photoUrl ? `<img src="${d.photoUrl}" style="width:40px; height:40px; border-radius:6px; object-fit:cover;" loading="lazy">` : ''}
+              <strong>${d.foodItem}</strong>
+            </div>
+          </td>
           <td>${d.quantity}</td>
           <td>${d.donorName}</td>
           <td><span class="status-badge ${statusClass}">${d.status}</span></td>
@@ -1069,6 +1353,10 @@
 
     container.innerHTML = `
       <div class="details-card">
+        ${don.photoUrl ? `
+          <div class="don-photo-wrap" style="height: 240px; margin-bottom: 24px;">
+            <img src="${don.photoUrl}" alt="${don.foodItem}" class="don-photo" style="border-radius: var(--radius-md);">
+          </div>` : ''}
         <div class="details-header">
           <h3>${don.foodItem}</h3>
           <span class="status-badge ${statusClass}">${don.status}</span>
@@ -1133,6 +1421,9 @@
     initRegisterForm();
     initModalClose();
 
+    // Leaflet homepage map
+    initHomepageMap();
+
     // Dashboard views
     initCreateDonationForm();
     initMyDonations();
@@ -1141,4 +1432,5 @@
     initDonationDetails();
   });
 })();
+
 

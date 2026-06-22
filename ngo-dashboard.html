@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NGO Dashboard — FoodSphere 360</title>
 <meta name="description" content="Browse available food listings, manage your accepted pickups, and track community feeding impact on FoodSphere 360.">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -59,35 +61,41 @@
     <div class="impact-grid" style="margin-bottom: 40px;">
       <div class="impact-card" style="padding: 24px;">
         <div class="ic-icon" style="background:var(--orange-soft);">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF7A33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF7A33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
         </div>
-        <h3>12 matched</h3>
-        <p class="ic-label" style="margin-bottom: 0;">Completed Pickups</p>
+        <h3>1,200+ served</h3>
+        <p class="ic-label" style="margin-bottom: 0;">People Served</p>
+      </div>
+
+      <div class="impact-card" style="padding: 24px;">
+        <div class="ic-icon" style="background:var(--sage);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1B6B4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <h3>420 kg received</h3>
+        <p class="ic-label" style="margin-bottom: 0;">Food Received</p>
+      </div>
+
+      <div class="impact-card" style="padding: 24px;">
+        <div class="ic-icon" style="background:var(--orange-soft);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF7A33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9a2 2 0 0 0-2 2v9"/><path d="M14 17H5a2 2 0 0 1-2-2V6"/></svg>
+        </div>
+        <h3>1,850+ meals</h3>
+        <p class="ic-label" style="margin-bottom: 0;">Meals Distributed</p>
       </div>
 
       <div class="impact-card" style="padding: 24px;">
         <div class="ic-icon" style="background:var(--sage);">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1B6B4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
         </div>
-        <h3>120 families</h3>
-        <p class="ic-label" style="margin-bottom: 0;">People Nourished</p>
+        <h3>3 active matches</h3>
+        <p class="ic-label" style="margin-bottom: 0;">Active Donations</p>
       </div>
+    </div>
 
-      <div class="impact-card" style="padding: 24px;">
-        <div class="ic-icon" style="background:var(--orange-soft);">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF7A33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-        </div>
-        <h3>420 kg</h3>
-        <p class="ic-label" style="margin-bottom: 0;">Food Rescued</p>
-      </div>
-
-      <div class="impact-card" style="padding: 24px;">
-        <div class="ic-icon" style="background:var(--sage);">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1B6B4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7M6 9v7a2 2 0 0 0 2 2h7"/></svg>
-        </div>
-        <h3>2.4 km</h3>
-        <p class="ic-label" style="margin-bottom: 0;">Average Travel Radius</p>
-      </div>
+    <!-- INTERACTIVE LOGISTICS MAP -->
+    <div class="dashboard-card" style="margin-bottom: 30px;">
+      <h3>Active Accepted Pickups Map</h3>
+      <div id="map" style="height: 350px; border-radius: var(--radius-sm); border: 1px solid var(--line); z-index: 10;"></div>
     </div>
 
     <!-- ACTIVE PICKUPS TABLE -->

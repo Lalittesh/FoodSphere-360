@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Available Donations — FoodSphere 360</title>
 <meta name="description" content="View and claim active surplus food donations available for distribution in your local area on FoodSphere 360.">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -50,6 +52,12 @@
         <h2 style="font-size: 2.2rem; margin-top: 10px;">Available Food Donations</h2>
         <p style="color: var(--ink-soft); margin-top: 6px;">Select active listings to claim. You can view full donor details after matching.</p>
       </div>
+    </div>
+
+    <!-- MAP CONTAINER -->
+    <div class="dashboard-card" style="margin-bottom: 30px;">
+      <h3>Live Available Donations Map</h3>
+      <div id="map" style="height: 350px; border-radius: var(--radius-sm); border: 1px solid var(--line); z-index: 10;"></div>
     </div>
 
     <!-- CARDS CONTAINER -->
