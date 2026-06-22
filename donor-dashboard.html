@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Donor Dashboard — FoodSphere 360</title>
+<meta name="description" content="Manage your surplus food donations, list new items, and track real-time community impact on FoodSphere 360.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<header class="navbar">
+  <div class="container">
+    <a href="index.html" class="brand" data-transition>
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 6 6 9 6 13a6 6 0 0 0 12 0c0-4-2-7-6-11z"/></svg>
+      </span>
+      FoodSphere<span class="accent">360</span>
+    </a>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="donor-dashboard.html" class="active">Dashboard</a>
+      <a href="create-donation.html" data-transition>List Food</a>
+      <a href="my-donations.html" data-transition>My Donations</a>
+    </nav>
+
+    <div class="nav-actions">
+      <span class="nav-user-info" style="font-weight:600; font-size:.9rem; color:var(--ink-soft); margin-right:15px;">
+        <span class="nav-user-name">Loading...</span> (<span class="nav-user-role" style="font-size:0.7rem; background:var(--sage); color:var(--green); padding:3px 8px; border-radius:10px;">DONOR</span>)
+      </span>
+      <button class="btn btn-ghost logout-btn">Log Out</button>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="dashboard-hero">
+  <div class="container">
+    
+    <div class="dashboard-title-row">
+      <div>
+        <span class="eyebrow">Donor Workspace</span>
+        <h2 style="font-size: clamp(2rem, 3.5vw, 2.8rem); margin-top: 10px;">Welcome back, <span class="nav-user-name" style="color: var(--green);">Donor</span>!</h2>
+        <p style="color: var(--ink-soft); margin-top: 8px;">Let's get good food moving. Below is your real-time surplus dashboard.</p>
+      </div>
+      <div>
+        <a href="create-donation.html" class="btn btn-accent btn-lg" data-transition>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          List Surplus Food
+        </a>
+      </div>
+    </div>
+
+    <!-- STATS BLOCKS -->
+    <div class="impact-grid" style="margin-bottom: 40px;">
+      <div class="impact-card" style="padding: 24px;">
+        <div class="ic-icon" style="background:var(--sage);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1B6B4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9a2 2 0 0 0-2 2v9"/><path d="M14 17H5a2 2 0 0 1-2-2V6"/><path d="M14 3l3 3-3 3"/><path d="M10 21l-3-3 3-3"/></svg>
+        </div>
+        <h3>340 meals</h3>
+        <p class="ic-label" style="margin-bottom: 0;">Total Food Contributed</p>
+      </div>
+
+      <div class="impact-card" style="padding: 24px;">
+        <div class="ic-icon" style="background:var(--orange-soft);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF7A33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        </div>
+        <h3>12 hours</h3>
+        <p class="ic-label" style="margin-bottom: 0;">Average Match Time</p>
+      </div>
+
+      <div class="impact-card" style="padding: 24px;">
+        <div class="ic-icon" style="background:var(--sage);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1B6B4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        </div>
+        <h3>150 kg</h3>
+        <p class="ic-label" style="margin-bottom: 0;">Carbon Saved</p>
+      </div>
+
+      <div class="impact-card" style="padding: 24px;">
+        <div class="ic-icon" style="background:var(--orange-soft);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF7A33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+        </div>
+        <h3>4 NGOs</h3>
+        <p class="ic-label" style="margin-bottom: 0;">Local NGO Partners Met</p>
+      </div>
+    </div>
+
+    <!-- RECENT DONATIONS TABLE -->
+    <div class="dashboard-card">
+      <h3>Recent Food Listings</h3>
+      <div class="dashboard-table-container" id="myDonationsList">
+        <div class="empty-state">
+          <p>Loading your donations...</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-bottom" style="border-top: none; padding: 40px 0;">
+      <span>© 2026 FoodSphere 360. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

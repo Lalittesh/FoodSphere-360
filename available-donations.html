@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Available Donations — FoodSphere 360</title>
+<meta name="description" content="View and claim active surplus food donations available for distribution in your local area on FoodSphere 360.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<header class="navbar">
+  <div class="container">
+    <a href="index.html" class="brand" data-transition>
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 6 6 9 6 13a6 6 0 0 0 12 0c0-4-2-7-6-11z"/></svg>
+      </span>
+      FoodSphere<span class="accent">360</span>
+    </a>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="ngo-dashboard.html" data-transition>Dashboard</a>
+      <a href="available-donations.html" class="active">Available Donations</a>
+      <a href="accepted-donations.html" data-transition>Accepted Pickups</a>
+    </nav>
+
+    <div class="nav-actions">
+      <span class="nav-user-info" style="font-weight:600; font-size:.9rem; color:var(--ink-soft); margin-right:15px;">
+        <span class="nav-user-name">Loading...</span> (<span class="nav-user-role" style="font-size:0.7rem; background:var(--orange-soft); color:var(--orange); padding:3px 8px; border-radius:10px;">NGO</span>)
+      </span>
+      <button class="btn btn-ghost logout-btn">Log Out</button>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="dashboard-hero">
+  <div class="container">
+    
+    <div class="dashboard-title-row">
+      <div>
+        <a href="ngo-dashboard.html" class="auth-back" style="margin-bottom: 16px;" data-transition>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          Back to Dashboard
+        </a>
+        <h2 style="font-size: 2.2rem; margin-top: 10px;">Available Food Donations</h2>
+        <p style="color: var(--ink-soft); margin-top: 6px;">Select active listings to claim. You can view full donor details after matching.</p>
+      </div>
+    </div>
+
+    <!-- CARDS CONTAINER -->
+    <div id="availableDonationsList">
+      <div class="empty-state">
+        <p>Loading available food listings...</p>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-bottom" style="border-top: none; padding: 40px 0;">
+      <span>© 2026 FoodSphere 360. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
