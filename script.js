@@ -712,7 +712,7 @@
 
     // Page route categorization
     const donorPages = ['donor-dashboard.html', 'create-donation.html', 'my-donations.html'];
-    const ngoPages = ['ngo-dashboard.html', 'available-donations.html', 'accepted-donations.html', 'donation-details.html'];
+    const ngoPages = ['ngo-dashboard.html', 'available-donations.html', 'accepted-donations.html', 'donation-details.html', 'ngo-reports.html'];
 
     // If logged in, prevent accessing login and register pages, auto-redirect to dashboards
     if (currentUser && (path === 'login.html' || path === 'register.html')) {
@@ -1046,6 +1046,7 @@
             don.status = 'Accepted';
             don.matchedNgo = currentUser.name;
             don.ngoEmail = currentUser.email;
+            don.acceptedAt = new Date().toISOString();
             localStorage.setItem('fs360_donations', JSON.stringify(allDons));
             showToast('success', 'Match Accepted', 'Donation successfully claimed! Redirecting to details...');
             setTimeout(() => {
@@ -1100,12 +1101,157 @@
     }
   }
 
+  /* Helper to compress uploaded image via Canvas to fit localStorage limit (<30kb) */
+  function compressImage(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const max_size = 400; // Keep long edge under 400px
+          if (width > height) {
+            if (width > max_size) {
+              height *= max_size / width;
+              width = max_size;
+            }
+          } else {
+            if (height > max_size) {
+              width *= max_size / height;
+              height = max_size;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.7); // compress to quality 0.7 JPEG
+          resolve(dataUrl);
+        };
+        img.onerror = (err) => reject(err);
+      };
+      reader.onerror = (err) => reject(err);
+    });
+  }
+
+  /* Async helper to fetch first matching food image from Pexels API */
+  async function searchPexels(foodItem, customKey) {
+    const key = customKey || localStorage.getItem('fs360_pexels_key') || '563492ad6f91700001000001e1a539dc2ef34c9c9966b44781df55db';
+    try {
+      const response = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(foodItem)}&per_page=1`, {
+        headers: {
+          'Authorization': key
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.photos && data.photos.length > 0) {
+          return data.photos[0].src.medium; // medium size is perfect for cards and details
+        }
+      }
+    } catch (error) {
+      console.warn('Pexels API fetch failed, using fallback:', error);
+    }
+    // Fallback image categorizer
+    return getFoodPhoto(foodItem);
+  }
+
   /* Donation logic for forms and views */
   function initCreateDonationForm() {
     const form = $('#createDonationForm');
     if (!form) return;
 
-    form.addEventListener('submit', (e) => {
+    const autoRadio = $('#photoOptionAuto', form);
+    const uploadRadio = $('#photoOptionUpload', form);
+    const pexelsKeyContainer = $('#pexelsApiKeyContainer', form);
+    const uploadFieldContainer = $('#uploadFieldContainer', form);
+    const fileInput = $('#photoUploadInput', form);
+    const uploadPlaceholder = $('#uploadPlaceholder', form);
+    const previewContainer = $('#uploadPreviewContainer', form);
+    const previewImg = $('#uploadPreviewImg', form);
+    const fileNameDiv = $('#uploadFileName', form);
+    const removeBtn = $('#removePhotoBtn', form);
+
+    // Toggle Photo Options input views
+    if (autoRadio && uploadRadio) {
+      autoRadio.addEventListener('change', () => {
+        if (pexelsKeyContainer) pexelsKeyContainer.style.display = 'block';
+        if (uploadFieldContainer) uploadFieldContainer.style.display = 'none';
+      });
+      uploadRadio.addEventListener('change', () => {
+        if (pexelsKeyContainer) pexelsKeyContainer.style.display = 'none';
+        if (uploadFieldContainer) uploadFieldContainer.style.display = 'block';
+      });
+    }
+
+    // Handle file input changes and drag-over / drop
+    if (fileInput) {
+      const handleFile = async (file) => {
+        if (!file || !file.type.startsWith('image/')) {
+          showToast('warn', 'Invalid File', 'Please select a valid image file.');
+          return;
+        }
+        try {
+          const compressedBase64 = await compressImage(file);
+          if (previewImg) previewImg.src = compressedBase64;
+          if (fileNameDiv) fileNameDiv.textContent = file.name;
+          if (previewContainer) previewContainer.style.display = 'flex';
+          if (uploadPlaceholder) uploadPlaceholder.style.display = 'none';
+        } catch (err) {
+          console.error('Image compression error:', err);
+          showToast('error', 'Upload Error', 'Failed to compress image.');
+        }
+      };
+
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) handleFile(file);
+      });
+
+      // drag & drop styling / mechanics
+      const dropZone = fileInput.parentElement;
+      if (dropZone) {
+        ['dragenter', 'dragover'].forEach(eventName => {
+          dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--green)';
+            dropZone.style.background = 'var(--sage)';
+          }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+          dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--line)';
+            dropZone.style.background = 'var(--white)';
+          }, false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+          const file = e.dataTransfer.files[0];
+          if (file) handleFile(file);
+        });
+      }
+    }
+
+    // Handle Remove Button click
+    if (removeBtn) {
+      removeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (fileInput) fileInput.value = '';
+        if (previewImg) previewImg.src = '';
+        if (previewContainer) previewContainer.style.display = 'none';
+        if (uploadPlaceholder) uploadPlaceholder.style.display = 'flex';
+      });
+    }
+
+    // Handle Form Submit
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       
       const foodItem = $('#foodItem', form).value.trim();
@@ -1117,37 +1263,67 @@
         showToast('error', 'Incomplete Form', 'Please fill in all required fields.');
         return;
       }
-      
-      const currentUser = JSON.parse(localStorage.getItem('fs360_currentUser'));
-      const donations = JSON.parse(localStorage.getItem('fs360_donations') || '[]');
-      
-      const lat = 9.9252 + (Math.random() - 0.5) * 0.02;
-      const lon = 78.1198 + (Math.random() - 0.5) * 0.02;
 
-      const newDonation = {
-        id: 'don_' + Date.now(),
-        foodItem,
-        quantity,
-        expiry,
-        pickupNotes,
-        donorName: currentUser.name,
-        donorEmail: currentUser.email,
-        donorPhone: currentUser.phone || '',
-        status: 'Pending',
-        matchedNgo: '',
-        latitude: lat,
-        longitude: lon,
-        photoUrl: getFoodPhoto(foodItem)
-      };
-      
-      donations.push(newDonation);
-      localStorage.setItem('fs360_donations', JSON.stringify(donations));
-      
-      showToast('success', 'Donation Created', 'Your surplus food donation listing is active!');
-      
-      setTimeout(() => {
-        window.location.href = 'my-donations.html';
-      }, 1000);
+      const submitBtn = $('button[type="submit"]', form);
+      submitBtn.classList.add('is-loading');
+      submitBtn.disabled = true;
+
+      try {
+        let photoUrl = '';
+        const photoOption = form.querySelector('input[name="photoOption"]:checked').value;
+
+        if (photoOption === 'upload') {
+          if (previewImg && previewImg.src && !previewImg.src.startsWith(window.location.origin) && previewImg.src !== '') {
+            photoUrl = previewImg.src;
+          } else {
+            photoUrl = getFoodPhoto(foodItem); // fallback if no photo was uploaded
+          }
+        } else {
+          // Option B: Auto Fetch from Pexels API
+          const customKey = $('#pexelsApiKey') ? $('#pexelsApiKey').value.trim() : '';
+          if (customKey) {
+            localStorage.setItem('fs360_pexels_key', customKey); // Save API key for future listings
+          }
+          photoUrl = await searchPexels(foodItem, customKey);
+        }
+        
+        const currentUser = JSON.parse(localStorage.getItem('fs360_currentUser'));
+        const donations = JSON.parse(localStorage.getItem('fs360_donations') || '[]');
+        
+        const lat = 9.9252 + (Math.random() - 0.5) * 0.02;
+        const lon = 78.1198 + (Math.random() - 0.5) * 0.02;
+
+        const newDonation = {
+          id: 'don_' + Date.now(),
+          foodItem,
+          quantity,
+          expiry,
+          pickupNotes,
+          donorName: currentUser.name,
+          donorEmail: currentUser.email,
+          donorPhone: currentUser.phone || '',
+          status: 'Pending',
+          matchedNgo: '',
+          latitude: lat,
+          longitude: lon,
+          photoUrl: photoUrl
+        };
+        
+        donations.push(newDonation);
+        localStorage.setItem('fs360_donations', JSON.stringify(donations));
+        
+        showToast('success', 'Donation Created', 'Your surplus food donation listing is active!');
+        
+        setTimeout(() => {
+          window.location.href = 'my-donations.html';
+        }, 1000);
+      } catch (err) {
+        console.error('Error listing food:', err);
+        showToast('error', 'Error', 'Something went wrong listing food.');
+      } finally {
+        submitBtn.classList.remove('is-loading');
+        submitBtn.disabled = false;
+      }
     });
   }
 
@@ -1158,6 +1334,38 @@
     const currentUser = JSON.parse(localStorage.getItem('fs360_currentUser'));
     const donations = JSON.parse(localStorage.getItem('fs360_donations') || '[]');
     const myDons = donations.filter(d => d.donorEmail === currentUser.email);
+
+    // Compute dynamic dashboard stats if on Donor Dashboard
+    const statsFoodContributedEl = $('#statsFoodContributed');
+    const statsCarbonSavedEl = $('#statsCarbonSaved');
+    const statsNgoPartnersEl = $('#statsNgoPartners');
+
+    if (statsFoodContributedEl || statsCarbonSavedEl || statsNgoPartnersEl) {
+      let totalMeals = 0;
+      const matchedNgos = new Set();
+
+      myDons.forEach(d => {
+        const qtyNum = parseInt(d.quantity) || 0;
+        if (d.status === 'Accepted' || d.status === 'Delivered') {
+          totalMeals += qtyNum;
+          if (d.matchedNgo) matchedNgos.add(d.matchedNgo);
+        }
+      });
+
+      if (statsFoodContributedEl) {
+        const baseMeals = 340 + totalMeals;
+        statsFoodContributedEl.textContent = `${baseMeals.toLocaleString()} meals`;
+      }
+      if (statsCarbonSavedEl) {
+        // Assume roughly 0.45kg CO2 saved per meal
+        const baseCarbon = 150 + Math.round(totalMeals * 0.45);
+        statsCarbonSavedEl.textContent = `${baseCarbon.toLocaleString()} kg`;
+      }
+      if (statsNgoPartnersEl) {
+        const baseNgos = 4 + matchedNgos.size;
+        statsNgoPartnersEl.textContent = `${baseNgos} NGOs`;
+      }
+    }
     
     if (myDons.length === 0) {
       container.innerHTML = `
@@ -1256,6 +1464,7 @@
           don.status = 'Accepted';
           don.matchedNgo = currentUser.name;
           don.ngoEmail = currentUser.email;
+          don.acceptedAt = new Date().toISOString();
           localStorage.setItem('fs360_donations', JSON.stringify(allDons));
           showToast('success', 'Match Accepted', 'Donation successfully claimed! Redirecting to details...');
           setTimeout(() => {
@@ -1276,6 +1485,47 @@
     
     // Also initialize Leaflet Map on dashboard for active pickups routing
     initAcceptedPickupsMap(acceptedDons);
+
+    // Compute dynamic dashboard stats if on NGO Dashboard page
+    const statsPeopleServedEl = $('#statsPeopleServed');
+    const statsFoodReceivedEl = $('#statsFoodReceived');
+    const statsMealsDistributedEl = $('#statsMealsDistributed');
+    const statsActiveMatchesEl = $('#statsActiveMatches');
+
+    if (statsPeopleServedEl || statsFoodReceivedEl || statsMealsDistributedEl || statsActiveMatchesEl) {
+      let totalMeals = 0;
+      let activeCount = 0;
+      let completedCount = 0;
+
+      acceptedDons.forEach(d => {
+        const qtyNum = parseInt(d.quantity) || 0;
+        if (d.status === 'Delivered') {
+          totalMeals += qtyNum;
+          completedCount++;
+        } else if (d.status === 'Accepted') {
+          activeCount++;
+        }
+      });
+
+      // Update elements dynamically
+      if (statsPeopleServedEl) {
+        // Estimate 1 person served per meal, plus some baseline
+        const basePeople = 1200 + totalMeals;
+        statsPeopleServedEl.textContent = `${basePeople.toLocaleString()}+ served`;
+      }
+      if (statsFoodReceivedEl) {
+        // Assume roughly 0.25kg per meal + baseline
+        const totalKg = 420 + (totalMeals * 0.25);
+        statsFoodReceivedEl.textContent = `${Math.round(totalKg).toLocaleString()} kg received`;
+      }
+      if (statsMealsDistributedEl) {
+        const baseMeals = 1850 + totalMeals;
+        statsMealsDistributedEl.textContent = `${baseMeals.toLocaleString()}+ meals`;
+      }
+      if (statsActiveMatchesEl) {
+        statsActiveMatchesEl.textContent = `${activeCount} active match${activeCount === 1 ? '' : 'es'}`;
+      }
+    }
 
     if (acceptedDons.length === 0) {
       container.innerHTML = `
@@ -1387,11 +1637,410 @@
     if (collectBtn) {
       collectBtn.addEventListener('click', () => {
         don.status = 'Delivered';
+        don.deliveredAt = new Date().toISOString();
         localStorage.setItem('fs360_donations', JSON.stringify(allDons));
         showToast('success', 'Status Updated', 'Donation has been successfully marked as collected/delivered!');
         initDonationDetails();
       });
     }
+  }
+
+  /* NGO Reporting Center implementation */
+  function initNgoReports() {
+    const pageEl = $('#ngoReportsPage');
+    if (!pageEl) return;
+
+    const currentUser = JSON.parse(localStorage.getItem('fs360_currentUser'));
+    const donations = JSON.parse(localStorage.getItem('fs360_donations') || '[]');
+    const acceptedDons = donations.filter(d => d.ngoEmail === currentUser.email);
+
+    // Tab buttons
+    const tabBtnDonation = $('#tabBtnDonation');
+    const tabBtnDistribution = $('#tabBtnDistribution');
+    const tabBtnInvoice = $('#tabBtnInvoice');
+    const tabBtnHistory = $('#tabBtnHistory');
+
+    // View containers
+    const viewDonation = $('#viewDonationReport');
+    const viewDistribution = $('#viewDistributionReport');
+    const viewInvoice = $('#viewInvoiceReceipt');
+    const viewHistory = $('#viewDonationHistory');
+
+    const tabs = [
+      { btn: tabBtnDonation, view: viewDonation, name: 'donation' },
+      { btn: tabBtnDistribution, view: viewDistribution, name: 'distribution' },
+      { btn: tabBtnInvoice, view: viewInvoice, name: 'invoice' },
+      { btn: tabBtnHistory, view: viewHistory, name: 'history' }
+    ];
+
+    function activateTab(tabName) {
+      tabs.forEach(t => {
+        if (t.name === tabName) {
+          if (t.btn) t.btn.classList.add('active');
+          if (t.view) t.view.classList.add('active');
+        } else {
+          if (t.btn) t.btn.classList.remove('active');
+          if (t.view) t.view.classList.remove('active');
+        }
+      });
+    }
+
+    // Set active tab based on query param
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialTab = urlParams.get('tab') || 'donation';
+    activateTab(initialTab);
+
+    // Bind tab clicks
+    tabs.forEach(t => {
+      if (t.btn) {
+        t.btn.addEventListener('click', () => {
+          activateTab(t.name);
+          // Update URL silently
+          const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?tab=' + t.name;
+          window.history.pushState({ path: newUrl }, '', newUrl);
+        });
+      }
+    });
+
+    // 1. Generate Donation Report
+    function renderDonationReport() {
+      const tableContainer = $('#donationReportTableContainer');
+      if (!tableContainer) return;
+
+      if (acceptedDons.length === 0) {
+        tableContainer.innerHTML = `
+          <div class="empty-state">
+            <p>You haven't accepted any donations yet to generate a report.</p>
+            <a href="available-donations.html" class="btn btn-accent btn-sm">Browse Available Food</a>
+          </div>`;
+        return;
+      }
+
+      let html = `
+        <table class="dashboard-table">
+          <thead>
+            <tr>
+              <th>NGO Name</th>
+              <th>Donation ID</th>
+              <th>Donor Name</th>
+              <th>Food Item</th>
+              <th>Quantity</th>
+              <th>Acceptance Date</th>
+              <th>Distribution Status</th>
+              <th>Distribution Date</th>
+            </tr>
+          </thead>
+          <tbody>`;
+
+      acceptedDons.reverse().forEach(d => {
+        const acceptDate = d.acceptedAt ? new Date(d.acceptedAt).toLocaleDateString() + ' ' + new Date(d.acceptedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
+        const deliveryDate = d.deliveredAt ? new Date(d.deliveredAt).toLocaleDateString() + ' ' + new Date(d.deliveredAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
+        let statusClass = 'status-accepted';
+        if (d.status === 'Delivered') statusClass = 'status-delivered';
+
+        html += `
+          <tr>
+            <td><strong>${currentUser.name}</strong></td>
+            <td><code>${d.id}</code></td>
+            <td>${d.donorName}</td>
+            <td>
+              <div style="display:flex; align-items:center; gap:8px;">
+                ${d.photoUrl ? `<img src="${d.photoUrl}" style="width:30px; height:30px; border-radius:4px; object-fit:cover;" loading="lazy">` : ''}
+                <span>${d.foodItem}</span>
+              </div>
+            </td>
+            <td><strong>${d.quantity}</strong></td>
+            <td>${acceptDate}</td>
+            <td><span class="status-badge ${statusClass}">${d.status}</span></td>
+            <td>${deliveryDate}</td>
+          </tr>`;
+      });
+
+      html += `</tbody></table>`;
+      tableContainer.innerHTML = html;
+    }
+
+    // 2. Generate Distribution Report
+    function renderDistributionReport() {
+      const statsGrid = $('#distributionStatsGrid');
+      const tableContainer = $('#distributionSummaryTableContainer');
+      if (!statsGrid || !tableContainer) return;
+
+      let totalReceived = acceptedDons.length;
+      let totalMeals = 0;
+      let activeCount = 0;
+      let completedCount = 0;
+
+      acceptedDons.forEach(d => {
+        const qtyNum = parseInt(d.quantity) || 0;
+        if (d.status === 'Delivered') {
+          totalMeals += qtyNum;
+          completedCount++;
+        } else if (d.status === 'Accepted') {
+          activeCount++;
+        }
+      });
+
+      // estimate people served: 1.2 persons per meal
+      let totalPeopleServed = Math.round(totalMeals * 1.2);
+
+      // Render stats cards
+      statsGrid.innerHTML = `
+        <div class="impact-card" style="padding: 20px;">
+          <div class="ic-icon" style="background:var(--sage);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B6B4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <h3>${totalReceived}</h3>
+          <p class="ic-label" style="margin-bottom: 0;">Donations Claimed</p>
+        </div>
+        <div class="impact-card" style="padding: 20px;">
+          <div class="ic-icon" style="background:var(--orange-soft);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF7A33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9a2 2 0 0 0-2 2v9"/><path d="M14 17H5a2 2 0 0 1-2-2V6"/></svg>
+          </div>
+          <h3>${totalMeals.toLocaleString()}</h3>
+          <p class="ic-label" style="margin-bottom: 0;">Meals Distributed</p>
+        </div>
+        <div class="impact-card" style="padding: 20px;">
+          <div class="ic-icon" style="background:var(--orange-soft);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF7A33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          </div>
+          <h3>${totalPeopleServed.toLocaleString()}</h3>
+          <p class="ic-label" style="margin-bottom: 0;">People Fed / Served</p>
+        </div>
+        <div class="impact-card" style="padding: 20px;">
+          <div class="ic-icon" style="background:var(--sage);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B6B4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          </div>
+          <h3>${activeCount} Active / ${completedCount} Done</h3>
+          <p class="ic-label" style="margin-bottom: 0;">Logistics Split</p>
+        </div>
+      `;
+
+      // Render summary split table
+      tableContainer.innerHTML = `
+        <table class="dashboard-table">
+          <thead>
+            <tr>
+              <th>Status Categorization</th>
+              <th>Match Count</th>
+              <th>Percentage Contribution</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="status-badge status-accepted">Active Pickup (Accepted)</span></td>
+              <td><strong>${activeCount}</strong></td>
+              <td>${totalReceived > 0 ? Math.round((activeCount / totalReceived) * 100) : 0}%</td>
+            </tr>
+            <tr>
+              <td><span class="status-badge status-delivered">Completed Distribution (Delivered)</span></td>
+              <td><strong>${completedCount}</strong></td>
+              <td>${totalReceived > 0 ? Math.round((completedCount / totalReceived) * 100) : 0}%</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+    }
+
+    // 3. Generate Invoice / Receipt
+    function renderInvoiceReceiptTab() {
+      const selectEl = $('#invoiceDonationSelect');
+      if (!selectEl) return;
+
+      // Populate dropdown option selector
+      selectEl.innerHTML = '<option value="">-- Choose Accepted Donation --</option>';
+      acceptedDons.forEach(d => {
+        const option = document.createElement('option');
+        option.value = d.id;
+        option.textContent = `${d.foodItem} - ${d.quantity} (by ${d.donorName}) [${d.status}]`;
+        selectEl.appendChild(option);
+      });
+
+      const handleSelectDonation = (donId) => {
+        const receiptContainer = $('#invoiceReceiptPrintContainer');
+        const emptyState = $('#invoiceReceiptEmptyState');
+        const cardEl = $('#invoiceReceiptCard');
+
+        if (!donId) {
+          if (receiptContainer) receiptContainer.style.display = 'none';
+          if (emptyState) emptyState.style.display = 'block';
+          return;
+        }
+
+        const don = acceptedDons.find(d => d.id === donId);
+        if (!don) return;
+
+        if (emptyState) emptyState.style.display = 'none';
+        if (receiptContainer) receiptContainer.style.display = 'block';
+
+        const refNo = `FS360-REF-${don.id.split('_')[1] || don.id}`;
+        const acceptDate = don.acceptedAt ? new Date(don.acceptedAt).toLocaleDateString() + ' ' + new Date(don.acceptedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
+        const deliveryDate = don.deliveredAt ? new Date(don.deliveredAt).toLocaleDateString() + ' ' + new Date(don.deliveredAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Pending Collection';
+
+        if (cardEl) {
+          cardEl.innerHTML = `
+            <div class="invoice-header">
+              <div>
+                <div class="invoice-brand">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green);"><path d="M12 2C8 6 6 9 6 13a6 6 0 0 0 12 0c0-4-2-7-6-11z"/></svg>
+                  FoodSphere 360
+                </div>
+                <div style="font-size: 0.85rem; color: #5C6A60; margin-top: 6px;">Surplus Rescue &amp; Distribution Network</div>
+              </div>
+              <div style="text-align: right;">
+                <h1 class="invoice-title">RECEIPT</h1>
+                <div style="font-size: 0.85rem; font-weight: 700; margin-top: 6px;">Ref: <code>${refNo}</code></div>
+              </div>
+            </div>
+
+            <div class="invoice-details-grid">
+              <div>
+                <h5 style="text-transform: uppercase; font-size: 0.76rem; font-weight: 700; color: var(--green); margin: 0 0 8px;">Claimant NGO</h5>
+                <div style="font-weight: 700; font-size: 1rem; color: #1A2E22;">${currentUser.name}</div>
+                <div style="font-size: 0.85rem; color: #5C6A60; margin-top: 4px;">Email: ${currentUser.email}</div>
+                <div style="font-size: 0.85rem; color: #5C6A60;">Phone: ${currentUser.phone || 'N/A'}</div>
+              </div>
+              <div style="text-align: right;">
+                <h5 style="text-transform: uppercase; font-size: 0.76rem; font-weight: 700; color: var(--green); margin: 0 0 8px;">Donating Partner</h5>
+                <div style="font-weight: 700; font-size: 1rem; color: #1A2E22;">${don.donorName}</div>
+                <div style="font-size: 0.85rem; color: #5C6A60; margin-top: 4px;">Email: ${don.donorEmail}</div>
+                <div style="font-size: 0.85rem; color: #5C6A60;">Phone: ${don.donorPhone || 'N/A'}</div>
+              </div>
+            </div>
+
+            <table class="invoice-table">
+              <thead>
+                <tr>
+                  <th>Item Description</th>
+                  <th>Quantity / Vol.</th>
+                  <th>Claim Date</th>
+                  <th>Distribution Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div style="font-weight: 700; color: #1A2E22;">${don.foodItem}</div>
+                    <div style="font-size: 0.75rem; color: #7F8E84; margin-top: 4px;">Notes: ${don.pickupNotes || 'None'}</div>
+                  </td>
+                  <td><strong>${don.quantity}</strong></td>
+                  <td>${acceptDate}</td>
+                  <td><span style="font-weight: 600; color: ${don.status === 'Delivered' ? 'var(--green-dark)' : '#E0463A'};">${deliveryDate}</span></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 40px; border-top: 1px dashed #C4D3CB; padding-top: 24px;">
+              <div>
+                <div style="font-size: 0.8rem; color: #7F8E84;">Tax Exemption Reference: SEC-12A(1)(b)</div>
+                <div style="font-size: 0.75rem; color: #7F8E84; margin-top: 2px;">This is a system-generated donation receipt. No physical signature is required.</div>
+              </div>
+              <div style="text-align: right; width: 200px;">
+                <div style="border-bottom: 1px solid #7F8E84; height: 30px;"></div>
+                <div style="font-size: 0.8rem; font-weight: 700; color: var(--green-dark); margin-top: 6px;">Authorized Signatory</div>
+                <div style="font-size: 0.75rem; color: #7F8E84;">${currentUser.name} Logistics Desk</div>
+              </div>
+            </div>
+          `;
+        }
+      };
+
+      selectEl.addEventListener('change', (e) => {
+        handleSelectDonation(e.target.value);
+      });
+    }
+
+    // 4. Generate Donation History Log
+    function renderDonationHistory(filterStatus = 'all') {
+      const tableContainer = $('#donationHistoryTableContainer');
+      if (!tableContainer) return;
+
+      let filtered = acceptedDons;
+      if (filterStatus !== 'all') {
+        filtered = acceptedDons.filter(d => d.status === filterStatus);
+      }
+
+      if (filtered.length === 0) {
+        tableContainer.innerHTML = `
+          <div class="empty-state">
+            <p>No historical records matching the "${filterStatus}" filter criteria were found.</p>
+          </div>`;
+        return;
+      }
+
+      let html = `
+        <table class="dashboard-table">
+          <thead>
+            <tr>
+              <th>Reference ID</th>
+              <th>Food Item Description</th>
+              <th>Donor Organization</th>
+              <th>Volumetric Quantity</th>
+              <th>Distribution Status</th>
+              <th>Last Transaction Date</th>
+            </tr>
+          </thead>
+          <tbody>`;
+
+      filtered.reverse().forEach(d => {
+        const transDate = d.deliveredAt ? new Date(d.deliveredAt).toLocaleDateString() : (d.acceptedAt ? new Date(d.acceptedAt).toLocaleDateString() : 'N/A');
+        let statusClass = 'status-accepted';
+        if (d.status === 'Delivered') statusClass = 'status-delivered';
+
+        html += `
+          <tr>
+            <td><code>${d.id}</code></td>
+            <td>
+              <div style="display:flex; align-items:center; gap:8px;">
+                ${d.photoUrl ? `<img src="${d.photoUrl}" style="width:30px; height:30px; border-radius:4px; object-fit:cover;" loading="lazy">` : ''}
+                <strong>${d.foodItem}</strong>
+              </div>
+            </td>
+            <td>${d.donorName}</td>
+            <td>${d.quantity}</td>
+            <td><span class="status-badge ${statusClass}">${d.status}</span></td>
+            <td><strong>${transDate}</strong></td>
+          </tr>`;
+      });
+
+      html += `</tbody></table>`;
+      tableContainer.innerHTML = html;
+    }
+
+    // Bind Print buttons
+    $$('.print-report-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        window.print();
+      });
+    });
+
+    const printInvoiceBtn = $('#printInvoiceBtn');
+    if (printInvoiceBtn) {
+      printInvoiceBtn.addEventListener('click', () => {
+        window.print();
+      });
+    }
+
+    const printHistoryBtn = $('#printHistoryBtn');
+    if (printHistoryBtn) {
+      printHistoryBtn.addEventListener('click', () => {
+        window.print();
+      });
+    }
+
+    // Bind History Filters
+    const historyFilter = $('#historyFilter');
+    if (historyFilter) {
+      historyFilter.addEventListener('change', (e) => {
+        renderDonationHistory(e.target.value);
+      });
+    }
+
+    // Initial renders
+    renderDonationReport();
+    renderDistributionReport();
+    renderInvoiceReceiptTab();
+    renderDonationHistory();
   }
 
   /* ---------------------------------------------------------
@@ -1422,7 +2071,10 @@
     initModalClose();
 
     // Leaflet homepage map
-    initHomepageMap();
+    const path = window.location.pathname.split('/').pop() || 'index.html';
+    if (path === 'index.html') {
+      initHomepageMap();
+    }
 
     // Dashboard views
     initCreateDonationForm();
@@ -1430,6 +2082,7 @@
     initAvailableDonations();
     initAcceptedDonations();
     initDonationDetails();
+    initNgoReports();
   });
 })();
 
