@@ -732,6 +732,19 @@
             <span></span><span></span><span></span>
           </button>
         `;
+        
+        // Update nav-links mobile drawer actions
+        const navLinks = $('#navLinks');
+        if (navLinks) {
+          const mobileActions = $('.nav-mobile-actions', navLinks);
+          if (mobileActions) {
+            mobileActions.innerHTML = `
+              <a href="${dashboardUrl}" class="btn btn-primary" style="width: 100%; margin-top: 10px;" data-transition>Go to Dashboard</a>
+              <button class="btn btn-ghost logout-btn" style="width: 100%; margin-top: 10px;">Log Out</button>
+            `;
+          }
+        }
+        
         initNavbar();
       }
     }
@@ -777,6 +790,15 @@
       
       nameElements.forEach(el => el.textContent = currentUser.name);
       roleElements.forEach(el => el.textContent = currentUser.role.toUpperCase());
+
+      // Dynamically display links matching the current user role
+      if (currentUser.role === 'donor') {
+        $$('.ngo-only').forEach(el => el.style.display = 'none');
+        $$('.donor-only').forEach(el => el.style.display = '');
+      } else if (currentUser.role === 'ngo') {
+        $$('.donor-only').forEach(el => el.style.display = 'none');
+        $$('.ngo-only').forEach(el => el.style.display = '');
+      }
     }
 
     // Logout triggers
@@ -1388,16 +1410,16 @@
       
       html += `
         <tr>
-          <td>
+          <td data-label="Food Item">
             <div style="display:flex; align-items:center; gap:12px;">
               ${d.photoUrl ? `<img src="${d.photoUrl}" style="width:40px; height:40px; border-radius:6px; object-fit:cover;" loading="lazy">` : ''}
               <strong>${d.foodItem}</strong>
             </div>
           </td>
-          <td>${d.quantity}</td>
-          <td>${d.expiry}</td>
-          <td><span class="status-badge ${statusClass}">${d.status}</span></td>
-          <td>${d.matchedNgo ? `Matched with <strong>${d.matchedNgo}</strong>` : 'Awaiting match...'}</td>
+          <td data-label="Quantity">${d.quantity}</td>
+          <td data-label="Expiry Window">${d.expiry}</td>
+          <td data-label="Status"><span class="status-badge ${statusClass}">${d.status}</span></td>
+          <td data-label="Matched NGO">${d.matchedNgo ? `Matched with <strong>${d.matchedNgo}</strong>` : 'Awaiting match...'}</td>
         </tr>`;
     });
     
@@ -1557,14 +1579,14 @@
       
       html += `
         <tr>
-          <td>
+          <td data-label="Food Item">
             <div style="display:flex; align-items:center; gap:12px;">
               ${d.photoUrl ? `<img src="${d.photoUrl}" style="width:40px; height:40px; border-radius:6px; object-fit:cover;" loading="lazy">` : ''}
               <strong>${d.foodItem}</strong>
             </div>
           </td>
-          <td>${d.quantity}</td>
-          <td>
+          <td data-label="Quantity">${d.quantity}</td>
+          <td data-label="Donor Contact Details">
             <div style="font-size: 0.85rem; line-height: 1.4; color: var(--ink);">
               <div><strong>${d.donorName}</strong></div>
               <div style="color: var(--ink-soft);">${d.donorEmail}</div>
@@ -1575,8 +1597,8 @@
               </div>
             </div>
           </td>
-          <td><span class="status-badge ${statusClass}">${d.status}</span></td>
-          <td><a href="donation-details.html?id=${d.id}" class="btn btn-ghost btn-sm">View Details</a></td>
+          <td data-label="Status"><span class="status-badge ${statusClass}">${d.status}</span></td>
+          <td data-label="Actions"><a href="donation-details.html?id=${d.id}" class="btn btn-ghost btn-sm">View Details</a></td>
         </tr>`;
     });
     
@@ -1756,19 +1778,19 @@
 
         html += `
           <tr>
-            <td><strong>${currentUser.name}</strong></td>
-            <td><code>${d.id}</code></td>
-            <td>${d.donorName}</td>
-            <td>
+            <td data-label="NGO Name"><strong>${currentUser.name}</strong></td>
+            <td data-label="Donation ID"><code>${d.id}</code></td>
+            <td data-label="Donor Name">${d.donorName}</td>
+            <td data-label="Food Item">
               <div style="display:flex; align-items:center; gap:8px;">
                 ${d.photoUrl ? `<img src="${d.photoUrl}" style="width:30px; height:30px; border-radius:4px; object-fit:cover;" loading="lazy">` : ''}
                 <span>${d.foodItem}</span>
               </div>
             </td>
-            <td><strong>${d.quantity}</strong></td>
-            <td>${acceptDate}</td>
-            <td><span class="status-badge ${statusClass}">${d.status}</span></td>
-            <td>${deliveryDate}</td>
+            <td data-label="Quantity"><strong>${d.quantity}</strong></td>
+            <td data-label="Acceptance Date">${acceptDate}</td>
+            <td data-label="Distribution Status"><span class="status-badge ${statusClass}">${d.status}</span></td>
+            <td data-label="Distribution Date">${deliveryDate}</td>
           </tr>`;
       });
 
@@ -1844,14 +1866,14 @@
           </thead>
           <tbody>
             <tr>
-              <td><span class="status-badge status-accepted">Active Pickup (Accepted)</span></td>
-              <td><strong>${activeCount}</strong></td>
-              <td>${totalReceived > 0 ? Math.round((activeCount / totalReceived) * 100) : 0}%</td>
+              <td data-label="Status Categorization"><span class="status-badge status-accepted">Active Pickup (Accepted)</span></td>
+              <td data-label="Match Count"><strong>${activeCount}</strong></td>
+              <td data-label="Percentage Contribution">${totalReceived > 0 ? Math.round((activeCount / totalReceived) * 100) : 0}%</td>
             </tr>
             <tr>
-              <td><span class="status-badge status-delivered">Completed Distribution (Delivered)</span></td>
-              <td><strong>${completedCount}</strong></td>
-              <td>${totalReceived > 0 ? Math.round((completedCount / totalReceived) * 100) : 0}%</td>
+              <td data-label="Status Categorization"><span class="status-badge status-delivered">Completed Distribution (Delivered)</span></td>
+              <td data-label="Match Count"><strong>${completedCount}</strong></td>
+              <td data-label="Percentage Contribution">${totalReceived > 0 ? Math.round((completedCount / totalReceived) * 100) : 0}%</td>
             </tr>
           </tbody>
         </table>
@@ -2005,17 +2027,17 @@
 
         html += `
           <tr>
-            <td><code>${d.id}</code></td>
-            <td>
+            <td data-label="Reference ID"><code>${d.id}</code></td>
+            <td data-label="Food Item Description">
               <div style="display:flex; align-items:center; gap:8px;">
                 ${d.photoUrl ? `<img src="${d.photoUrl}" style="width:30px; height:30px; border-radius:4px; object-fit:cover;" loading="lazy">` : ''}
                 <strong>${d.foodItem}</strong>
               </div>
             </td>
-            <td>${d.donorName}</td>
-            <td>${d.quantity}</td>
-            <td><span class="status-badge ${statusClass}">${d.status}</span></td>
-            <td><strong>${transDate}</strong></td>
+            <td data-label="Donor Organization">${d.donorName}</td>
+            <td data-label="Volumetric Quantity">${d.quantity}</td>
+            <td data-label="Distribution Status"><span class="status-badge ${statusClass}">${d.status}</span></td>
+            <td data-label="Last Transaction Date"><strong>${transDate}</strong></td>
           </tr>`;
       });
 
@@ -2420,6 +2442,346 @@
   }
 
   /* ---------------------------------------------------------
+     Notifications Page Logic
+     --------------------------------------------------------- */
+  function seedNotifications() {
+    const list = localStorage.getItem('fs360_notifications');
+    if (!list) {
+      const sampleNotifications = [
+        { id: 'notif_1', type: 'success', title: 'Donation Delivered', desc: 'Hotel Meridian Vegetable Biryani was successfully delivered to Asha Foundation.', time: '2 hours ago', read: false, role: 'donor' },
+        { id: 'notif_2', type: 'match', title: 'New Match Accepted', desc: 'Asha Foundation claimed your Lemon Rice surplus listing.', time: '5 hours ago', read: false, role: 'donor' },
+        { id: 'notif_3', type: 'alert', title: 'New Donation Available', desc: 'Hotel Meridian listed 30 servings of South Indian Meals in your radius.', time: '1 day ago', read: true, role: 'ngo' },
+        { id: 'notif_4', type: 'success', title: 'Pickup Completed', desc: 'You successfully completed the delivery of 40 Servings of Idly & Sambar.', time: '2 days ago', read: true, role: 'ngo' },
+        { id: 'notif_5', type: 'alert', title: 'Profile Updated', desc: 'Your account contact phone details were changed.', time: '3 days ago', read: true, role: 'all' }
+      ];
+      localStorage.setItem('fs360_notifications', JSON.stringify(sampleNotifications));
+    }
+  }
+
+  function initNotificationsPage() {
+    const container = $('#notificationsList');
+    if (!container) return;
+
+    seedNotifications();
+    const currentUser = JSON.parse(localStorage.getItem('fs360_currentUser'));
+    if (!currentUser) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    const renderNotifs = (filter = 'all') => {
+      const notifs = JSON.parse(localStorage.getItem('fs360_notifications') || '[]');
+      const userNotifs = notifs.filter(n => n.role === currentUser.role || n.role === 'all');
+      
+      let filtered = userNotifs;
+      if (filter === 'unread') filtered = userNotifs.filter(n => !n.read);
+      else if (filter === 'alerts') filtered = userNotifs.filter(n => n.type === 'alert');
+      else if (filter === 'matches') filtered = userNotifs.filter(n => n.type === 'match');
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <p>No notifications found matching this category.</p>
+          </div>`;
+        return;
+      }
+
+      let html = '<div style="display:flex; flex-direction:column; gap:14px;">';
+      filtered.forEach(n => {
+        let iconHtml = '';
+        let borderClass = '';
+        if (n.type === 'success') {
+          iconHtml = TOAST_ICONS.success;
+          borderClass = 'border-left: 4px solid var(--green);';
+        } else if (n.type === 'alert') {
+          iconHtml = TOAST_ICONS.error;
+          borderClass = 'border-left: 4px solid #E0463A;';
+        } else {
+          iconHtml = TOAST_ICONS.warn;
+          borderClass = 'border-left: 4px solid var(--orange);';
+        }
+
+        html += `
+          <div class="impact-card" style="padding:18px 22px; display:flex; align-items:flex-start; gap:16px; transition:none; ${borderClass} opacity:${n.read ? '0.72' : '1'}; position:relative;">
+            <span style="width:24px; height:24px; display:block; flex-shrink:0;">${iconHtml}</span>
+            <div style="flex:1;">
+              <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px;">
+                <h4 style="font-size:1.05rem; font-family:var(--body); font-weight:700; color:var(--ink);">${n.title}</h4>
+                <span style="font-size:0.75rem; color:var(--ink-soft); font-weight:600;">${n.time}</span>
+              </div>
+              <p style="font-size:0.88rem; color:var(--ink-soft); margin:6px 0 0 0;">${n.desc}</p>
+            </div>
+            ${!n.read ? `<button class="btn btn-ghost btn-xs mark-read-btn" data-id="${n.id}" style="padding:4px 8px; font-size:0.7rem; border-radius:4px; font-weight:700; margin-left:12px;">Mark read</button>` : ''}
+          </div>`;
+      });
+      html += '</div>';
+      container.innerHTML = html;
+
+      // Bind individual mark read click listeners
+      $$('.mark-read-btn', container).forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          const allNotifs = JSON.parse(localStorage.getItem('fs360_notifications') || '[]');
+          const match = allNotifs.find(n => n.id === id);
+          if (match) {
+            match.read = true;
+            localStorage.setItem('fs360_notifications', JSON.stringify(allNotifs));
+            showToast('success', 'Notification Read', 'Alert marked as read.');
+            renderNotifs(filter);
+          }
+        });
+      });
+    };
+
+    // Filter Buttons
+    $$('.notif-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        $$('.notif-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderNotifs(btn.dataset.filter);
+      });
+    });
+
+    // Mark all as read
+    $('#markAllReadBtn')?.addEventListener('click', () => {
+      const allNotifs = JSON.parse(localStorage.getItem('fs360_notifications') || '[]');
+      let updated = false;
+      allNotifs.forEach(n => {
+        if ((n.role === currentUser.role || n.role === 'all') && !n.read) {
+          n.read = true;
+          updated = true;
+        }
+      });
+      if (updated) {
+        localStorage.setItem('fs360_notifications', JSON.stringify(allNotifs));
+        showToast('success', 'Inbox Read', 'All notifications marked as read.');
+        const currentActive = $('.notif-filter-btn.active')?.dataset.filter || 'all';
+        renderNotifs(currentActive);
+      } else {
+        showToast('warn', 'Already Read', 'All notifications are already read.');
+      }
+    });
+
+    renderNotifs('all');
+  }
+
+  /* ---------------------------------------------------------
+     Emergency Requests Page Logic
+     --------------------------------------------------------- */
+  function seedEmergencyRequests() {
+    const list = localStorage.getItem('fs360_emergency_requests');
+    if (!list) {
+      const sampleRequests = [
+        { id: 'emerg_1', ngoName: 'Asha Foundation', phone: '+91 87654 32109', itemsNeeded: '100 Packs of Rice or Biryani', location: 'Sellur Flood Relief Temp Camp', latitude: 9.9390, longitude: 78.1170, urgency: 'Urgent', status: 'Active' },
+        { id: 'emerg_2', ngoName: 'Community Kitchen Madurai', phone: '+91 76543 21098', itemsNeeded: '50 Servings Breakfast (Idly/Pongal)', location: 'Madurai Slum Board Low Resource Area', latitude: 9.9140, longitude: 78.1250, urgency: 'High', status: 'Active' },
+        { id: 'emerg_3', ngoName: 'Helping Hands NGO', phone: '+91 65432 10987', itemsNeeded: '30 Meals Packaged Dry Roti/Subji', location: 'Madurai Junction Night Shelter Center', latitude: 9.9210, longitude: 78.1090, urgency: 'Medium', status: 'Active' }
+      ];
+      localStorage.setItem('fs360_emergency_requests', JSON.stringify(sampleRequests));
+    }
+  }
+
+  function initEmergencyRequestsMap(activeRequests) {
+    const mapEl = $('#map');
+    if (!mapEl || !window.L) return;
+
+    if (window.emergencyMap) {
+      window.emergencyMap.remove();
+    }
+
+    const map = L.map('map').setView([9.9252, 78.1198], 13);
+    window.emergencyMap = map;
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const markers = [];
+    activeRequests.forEach(req => {
+      if (req.latitude && req.longitude) {
+        // Red color pulse for emergencies
+        const marker = L.marker([req.latitude, req.longitude], {
+          icon: L.divIcon({
+            className: 'custom-leaflet-marker',
+            html: `<span class="map-marker" style="background:#E0463A; box-shadow: 0 0 0 0 rgba(224,70,58,.5); animation: marker-pulse 2s ease-out infinite;"></span>`,
+            iconSize: [18, 18],
+            iconAnchor: [9, 9]
+          })
+        })
+        .addTo(map)
+        .bindPopup(`
+          <div style="font-family:var(--body); line-height:1.4;">
+            <span style="font-size:0.7rem; font-weight:700; color:#fff; background:#E0463A; padding:2px 6px; border-radius:4px; text-transform:uppercase;">${req.urgency}</span>
+            <div style="margin-top:6px; font-weight:700; font-size:0.9rem; color:var(--ink);">${req.ngoName}</div>
+            <div style="font-size:0.8rem; color:var(--ink-soft); margin-top:2px;">Needs: <strong>${req.itemsNeeded}</strong></div>
+            <div style="font-size:0.8rem; color:var(--ink-soft);">Location: ${req.location}</div>
+            <div style="font-size:0.8rem; color:var(--ink-soft);">Phone: <strong>${req.phone}</strong></div>
+            <button class="btn btn-accent btn-sm claim-emerg-btn" data-id="${req.id}" style="margin-top:8px; padding:5px 10px; font-size:0.75rem; width:100%;">Fulfill Request</button>
+          </div>
+        `);
+        markers.push(marker);
+      }
+    });
+
+    map.on('popupopen', (e) => {
+      const btn = e.popup.getElement().querySelector('.claim-emerg-btn');
+      if (btn) {
+        btn.addEventListener('click', () => {
+          const reqId = btn.dataset.id;
+          const currentUser = JSON.parse(localStorage.getItem('fs360_currentUser'));
+          if (currentUser.role !== 'donor') {
+            showToast('error', 'Action Denied', 'Only registered food Donors can fulfill emergency requests.');
+            return;
+          }
+          
+          const requests = JSON.parse(localStorage.getItem('fs360_emergency_requests') || '[]');
+          const idx = requests.findIndex(r => r.id === reqId);
+          if (idx !== -1) {
+            requests[idx].status = 'Fulfilled';
+            requests[idx].fulfilledBy = currentUser.name;
+            localStorage.setItem('fs360_emergency_requests', JSON.stringify(requests));
+            showToast('success', 'Fulfillment Registered', 'Thank you! You have claimed this emergency relief dispatch. Coordinate logistics directly.');
+            setTimeout(() => {
+              window.location.reload();
+            }, 1500);
+          }
+        });
+      }
+    });
+
+    if (markers.length > 0) {
+      const group = new L.featureGroup(markers);
+      map.fitBounds(group.getBounds().pad(0.1));
+    }
+  }
+
+  function initEmergencyRequestsPage() {
+    const pageEl = $('#emergencyRequestsPage');
+    if (!pageEl) return;
+
+    seedEmergencyRequests();
+    const currentUser = JSON.parse(localStorage.getItem('fs360_currentUser'));
+    if (!currentUser) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    // Populate user-specific visibility
+    const submitCard = $('#emergencySubmitCard');
+    if (submitCard) {
+      // Only NGOs can submit emergency requests
+      if (currentUser.role === 'ngo') {
+        submitCard.style.display = 'block';
+      } else {
+        submitCard.style.display = 'none';
+      }
+    }
+
+    const renderRequests = () => {
+      const requests = JSON.parse(localStorage.getItem('fs360_emergency_requests') || '[]');
+      const activeRequests = requests.filter(r => r.status === 'Active');
+      
+      initEmergencyRequestsMap(activeRequests);
+
+      const listContainer = $('#activeEmergencyRequestsList');
+      if (!listContainer) return;
+
+      if (activeRequests.length === 0) {
+        listContainer.innerHTML = `
+          <div class="empty-state">
+            <p>No active emergency food requests in your zone right now.</p>
+          </div>`;
+        return;
+      }
+
+      let html = '<div class="donations-grid">';
+      activeRequests.reverse().forEach(req => {
+        let badgeColor = 'background: #FFE3D1; color: var(--orange-dark);';
+        if (req.urgency === 'Urgent') badgeColor = 'background: #FEE2E2; color: #E0463A;';
+
+        html += `
+          <div class="donation-card" style="border: 1.5px solid #FEE2E2;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span class="eyebrow" style="${badgeColor} padding: 4px 10px; font-size: 0.7rem; border-radius:10px;">${req.urgency} EMERGENCY</span>
+            </div>
+            <div class="don-card-content" style="padding-top:8px;">
+              <h4 style="margin-bottom:6px;">NGO: ${req.ngoName}</h4>
+              <p style="margin-bottom:6px; color:var(--ink); font-size:0.95rem;"><strong>Needs: ${req.itemsNeeded}</strong></p>
+              <p style="font-size:0.83rem; color:var(--ink-soft); margin-bottom:4px;">Location: <strong>${req.location}</strong></p>
+              <p style="font-size:0.83rem; color:var(--ink-soft); margin-bottom:12px;">Contact: <strong>${req.phone}</strong></p>
+              
+              <div style="display:flex; gap:8px; margin-top:8px;">
+                <a href="tel:${req.phone}" class="btn btn-ghost btn-sm" style="flex:1; padding:6px; font-size:0.75rem; text-align:center; border:1px solid var(--line); border-radius:6px; display:inline-block; text-decoration:none;">Call NGO</a>
+                ${currentUser.role === 'donor' ? `<button class="btn btn-accent btn-sm fulfill-req-btn" data-id="${req.id}" style="flex:1.2;">Fulfill Request</button>` : ''}
+              </div>
+            </div>
+          </div>`;
+      });
+      html += '</div>';
+      listContainer.innerHTML = html;
+
+      // Bind buttons
+      $$('.fulfill-req-btn', listContainer).forEach(btn => {
+        btn.addEventListener('click', () => {
+          const reqId = btn.dataset.id;
+          const requests = JSON.parse(localStorage.getItem('fs360_emergency_requests') || '[]');
+          const idx = requests.findIndex(r => r.id === reqId);
+          if (idx !== -1) {
+            requests[idx].status = 'Fulfilled';
+            requests[idx].fulfilledBy = currentUser.name;
+            localStorage.setItem('fs360_emergency_requests', JSON.stringify(requests));
+            showToast('success', 'Fulfillment Registered', 'Thank you! Coordinate emergency logistics directly.');
+            renderRequests();
+          }
+        });
+      });
+    };
+
+    // Bind Submission Form
+    const form = $('#emergencyRequestForm');
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const items = $('#emergencyItems').value.trim();
+        const loc = $('#emergencyLocation').value.trim();
+        const urgency = $('#emergencyUrgency').value;
+
+        if (!items || !loc) {
+          showToast('error', 'Incomplete Form', 'Please specify items needed and collection location.');
+          return;
+        }
+
+        const requests = JSON.parse(localStorage.getItem('fs360_emergency_requests') || '[]');
+        
+        // Random coords in Madurai
+        const lat = 9.9252 + (Math.random() - 0.5) * 0.02;
+        const lon = 78.1198 + (Math.random() - 0.5) * 0.02;
+
+        const newRequest = {
+          id: 'emerg_' + Date.now(),
+          ngoName: currentUser.name,
+          phone: currentUser.phone || '+91 99999 99999',
+          itemsNeeded: items,
+          location: loc,
+          latitude: lat,
+          longitude: lon,
+          urgency: urgency,
+          status: 'Active'
+        };
+
+        requests.push(newRequest);
+        localStorage.setItem('fs360_emergency_requests', JSON.stringify(requests));
+        showToast('success', 'Emergency Alert Sent', 'Your emergency food request has been broadcasted to all nearby donors.');
+        
+        // Reset form and refresh list
+        form.reset();
+        renderRequests();
+      });
+    }
+
+    renderRequests();
+  }
+
+  /* ---------------------------------------------------------
      Init
      --------------------------------------------------------- */
   document.addEventListener('DOMContentLoaded', () => {
@@ -2460,6 +2822,8 @@
     initDonationDetails();
     initNgoReports();
     initProfileForm();
+    initNotificationsPage();
+    initEmergencyRequestsPage();
 
     // Cross-tab profile updates
     window.addEventListener('storage', (e) => {

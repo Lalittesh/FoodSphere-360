@@ -1752,5 +1752,216 @@ body.auth-body.dark .theme-toggle .icon-sun{ display:block; }
   }
 }
 
+/* ============================================================
+   MOBILE RESPONSIVENESS OVERRIDES & IMPROVEMENTS
+   ============================================================ */
+
+/* Navbar responsive adjustments */
+@media (max-width: 880px) {
+  .nav-actions .nav-user-info,
+  .nav-actions .btn {
+    display: none !important;
+  }
+  .nav-toggle {
+    display: flex !important;
+  }
+  .nav-links .nav-mobile-user-info {
+    display: flex !important;
+  }
+  .nav-links .mobile-logout-btn,
+  .nav-links .nav-mobile-actions {
+    display: block !important;
+    width: 100% !important;
+  }
+  .nav-links .nav-mobile-actions {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    padding: 10px 14px !important;
+    margin-top: 14px !important;
+  }
+}
+
+/* Mobile-friendly Navigation Link Styles */
+.nav-links .nav-mobile-user-info {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 14px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+.nav-links .nav-mobile-user-info .nav-user-role {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+.nav-links .nav-mobile-user-info .nav-user-role.donor {
+  background: var(--sage);
+  color: var(--green);
+}
+.nav-links .nav-mobile-user-info .nav-user-role.ngo {
+  background: var(--orange-soft);
+  color: var(--orange-dark);
+}
+.nav-links .mobile-logout-btn {
+  display: none;
+  width: calc(100% - 28px);
+  margin: 14px auto 0;
+  text-align: center;
+}
+
+/* Tables responsive stacked card layout */
+@media (max-width: 768px) {
+  .dashboard-table, 
+  .dashboard-table thead, 
+  .dashboard-table tbody, 
+  .dashboard-table th, 
+  .dashboard-table td, 
+  .dashboard-table tr {
+    display: block;
+    width: 100%;
+  }
+  .dashboard-table thead {
+    display: none !important;
+  }
+  .dashboard-table tr {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+  .dashboard-table td {
+    border-bottom: 1px solid var(--line);
+    padding: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: right;
+    font-size: 0.9rem;
+    min-height: 44px;
+  }
+  .dashboard-table td:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  .dashboard-table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-align: left;
+    margin-right: 12px;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .dashboard-table td > div {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    text-align: right;
+  }
+}
+
+/* Form layouts and controls */
+@media (max-width: 480px) {
+  .form-row-between {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .form-step-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .form-step-actions .btn {
+    width: 100%;
+  }
+  .profile-form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+  .profile-form-full {
+    grid-column: span 1 !important;
+  }
+}
+
+/* Grids and Dashboard statistics */
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+    row-gap: 20px !important;
+  }
+  .donations-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .impact-grid, .features-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .activity-feed {
+    height: auto !important;
+  }
+}
+
+/* Maps responsiveness */
+@media (max-width: 768px) {
+  #map {
+    height: 280px !important;
+  }
+}
+@media (max-width: 480px) {
+  #map {
+    height: 220px !important;
+  }
+}
+.leaflet-container {
+  max-width: 100%;
+}
+
+/* Buttons sizing and text overflow prevention */
+@media (max-width: 480px) {
+  .btn {
+    white-space: normal !important;
+    text-align: center;
+    padding: 12px 20px !important;
+    font-size: 0.9rem !important;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .btn svg {
+    margin-inline: auto 0;
+  }
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+  .hero-actions .btn {
+    width: 100% !important;
+  }
+  .cta-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .cta-actions .btn {
+    width: 100% !important;
+  }
+  .details-card {
+    padding: 20px !important;
+  }
+  .details-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
 
 

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emergency Requests — FoodSphere 360</title>
+<meta name="description" content="View and list urgent emergency food relief requests in real-time across the FoodSphere 360 network.">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body id="emergencyRequestsPage">
+
+<!-- NAVBAR -->
+<header class="navbar">
+  <div class="container">
+    <a href="index.html" class="brand" data-transition>
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 6 6 9 6 13a6 6 0 0 0 12 0c0-4-2-7-6-11z"/></svg>
+      </span>
+      FoodSphere<span class="accent">360</span>
+    </a>
+
+    <nav class="nav-links" id="navLinks">
+      <!-- For Donor -->
+      <a href="donor-dashboard.html" class="donor-only" data-transition>Dashboard</a>
+      <a href="create-donation.html" class="donor-only" data-transition>List Food</a>
+      <a href="my-donations.html" class="donor-only" data-transition>My Donations</a>
+      <!-- For NGO -->
+      <a href="ngo-dashboard.html" class="ngo-only" data-transition>Dashboard</a>
+      <a href="available-donations.html" class="ngo-only" data-transition>Available Donations</a>
+      <a href="accepted-donations.html" class="ngo-only" data-transition>Accepted Pickups</a>
+      <a href="ngo-reports.html" class="ngo-only" data-transition>Reporting Center</a>
+      <!-- Common -->
+      <a href="emergency-requests.html" class="active">Emergency Requests</a>
+      <a href="notifications.html" data-transition>Notifications</a>
+      <a href="profile-donor.html" class="donor-only" data-transition>Profile</a>
+      <a href="profile-ngo.html" class="ngo-only" data-transition>Profile</a>
+      
+      <div class="nav-mobile-user-info">
+        <span class="nav-user-name">Loading...</span> (<span class="nav-user-role">USER</span>)
+      </div>
+      <button class="btn btn-ghost logout-btn mobile-logout-btn">Log Out</button>
+    </nav>
+
+    <div class="nav-actions">
+      <span class="nav-user-info" style="font-weight:600; font-size:.9rem; color:var(--ink-soft); margin-right:15px;">
+        <span class="nav-user-name">Loading...</span> (<span class="nav-user-role" style="font-size:0.7rem; background:var(--sage); color:var(--green); padding:3px 8px; border-radius:10px;">USER</span>)
+      </span>
+      <button class="btn btn-ghost logout-btn">Log Out</button>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="dashboard-hero">
+  <div class="container">
+    
+    <div class="dashboard-title-row">
+      <div>
+        <a href="#" id="backToDashBtn" class="auth-back" style="margin-bottom: 16px;" data-transition>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          Back to Dashboard
+        </a>
+        <h2 style="font-size: clamp(2rem, 3.5vw, 2.6rem); margin-top: 10px;">Emergency Food Requests</h2>
+        <p style="color: var(--ink-soft); margin-top: 6px;">List or fulfill urgent food dispatches for disaster zones, orphanages, and shelters in low-resource situations.</p>
+      </div>
+    </div>
+
+    <!-- MAP OVERVIEW -->
+    <div class="dashboard-card" style="margin-bottom: 30px;">
+      <h3>Emergency Relief Hotspots Map</h3>
+      <p style="color: var(--ink-soft); font-size: 0.88rem; margin-top: 4px; margin-bottom: 16px;">Map pins indicate high-priority regions in need of immediate food rescue supply runs.</p>
+      <div id="map" style="height: 350px; border-radius: var(--radius-sm); border: 1px solid var(--line); z-index: 10;"></div>
+    </div>
+
+    <!-- GRID LAYOUT -->
+    <div class="dashboard-grid">
+      
+      <!-- LEFT FIELD: Submit Request (NGO only, managed by JS) -->
+      <section class="dashboard-card" id="emergencySubmitCard" style="display: none; height: fit-content; margin-bottom: 24px;">
+        <h3 style="margin-top: 0; border-bottom: none; padding-bottom: 0;">Broadcast Emergency Request</h3>
+        <p style="color: var(--ink-soft); font-size: 0.85rem; margin-top: 4px; margin-bottom: 20px;">Instantly notify all local food donors on our platform about your urgent food shortage.</p>
+        
+        <form id="emergencyRequestForm" novalidate>
+          <div class="field">
+            <label for="emergencyItems">Food Items / Quantity Required</label>
+            <div class="input-shell">
+              <input type="text" id="emergencyItems" placeholder="e.g. 100 Packs of Cooked Lunch, Rice" required>
+            </div>
+          </div>
+          
+          <div class="field">
+            <label for="emergencyLocation">Delivery / Distribution Location</label>
+            <div class="input-shell">
+              <input type="text" id="emergencyLocation" placeholder="e.g. Sellur Relief Camp Ward 4" required>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="emergencyUrgency">Urgency Priority Level</label>
+            <div class="input-shell" style="padding: 2px 14px;">
+              <select id="emergencyUrgency" style="width: 100%; border: none; background: transparent; padding: 12px 0; outline: none; font-size: 0.93rem; font-family: inherit; color: var(--ink); cursor: pointer;">
+                <option value="Medium">Medium Priority</option>
+                <option value="High">High Priority</option>
+                <option value="Urgent">Urgent Priority (Disaster/Floods)</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-accent btn-block" style="margin-top: 24px;">Broadcast Request</button>
+        </form>
+      </section>
+
+      <!-- RIGHT FIELD: List of Active Requests -->
+      <section style="grid-column: span 2; width: 100%;" id="requestsWrapper">
+        <div class="dashboard-card" style="margin-bottom: 0;">
+          <h3 style="margin-top: 0;">Active Emergency Broadcasts</h3>
+          <p style="color: var(--ink-soft); font-size: 0.88rem; margin-top: 4px; margin-bottom: 20px;">Review broadcasts below. Click Fulfill to coordinates supply drops directly.</p>
+          
+          <div id="activeEmergencyRequestsList">
+            <div class="empty-state">
+              <p>Gathering active emergency signals...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-bottom" style="border-top: none; padding: 40px 0;">
+      <span>© 2026 FoodSphere 360. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Dynamic back button redirection
+    const backBtn = document.getElementById('backToDashBtn');
+    if (backBtn) {
+      const user = JSON.parse(localStorage.getItem('fs360_currentUser') || '{}');
+      backBtn.href = user.role === 'donor' ? 'donor-dashboard.html' : 'ngo-dashboard.html';
+    }
+
+    // Dynamic submit form card alignment
+    const user = JSON.parse(localStorage.getItem('fs360_currentUser') || '{}');
+    const wrapper = document.getElementById('requestsWrapper');
+    if (user.role === 'donor') {
+      // Donors just claim, make active request list take full grid width
+      if (wrapper) wrapper.style.gridColumn = 'span 2';
+    } else if (user.role === 'ngo') {
+      // NGOs see form on left, active list on right
+      if (wrapper) wrapper.style.gridColumn = 'span 1';
+      const grid = document.querySelector('.dashboard-grid');
+      if (grid) grid.style.gridTemplateColumns = '1.1fr 1.9fr';
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notifications — FoodSphere 360</title>
+<meta name="description" content="Stay updated with real-time food match listings, logistical pickup details, and platform alerts on FoodSphere 360.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<header class="navbar">
+  <div class="container">
+    <a href="index.html" class="brand" data-transition>
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 6 6 9 6 13a6 6 0 0 0 12 0c0-4-2-7-6-11z"/></svg>
+      </span>
+      FoodSphere<span class="accent">360</span>
+    </a>
+
+    <nav class="nav-links" id="navLinks">
+      <!-- For Donor -->
+      <a href="donor-dashboard.html" class="donor-only" data-transition>Dashboard</a>
+      <a href="create-donation.html" class="donor-only" data-transition>List Food</a>
+      <a href="my-donations.html" class="donor-only" data-transition>My Donations</a>
+      <!-- For NGO -->
+      <a href="ngo-dashboard.html" class="ngo-only" data-transition>Dashboard</a>
+      <a href="available-donations.html" class="ngo-only" data-transition>Available Donations</a>
+      <a href="accepted-donations.html" class="ngo-only" data-transition>Accepted Pickups</a>
+      <a href="ngo-reports.html" class="ngo-only" data-transition>Reporting Center</a>
+      <!-- Common -->
+      <a href="emergency-requests.html" data-transition>Emergency Requests</a>
+      <a href="notifications.html" class="active">Notifications</a>
+      <a href="profile-donor.html" class="donor-only" data-transition>Profile</a>
+      <a href="profile-ngo.html" class="ngo-only" data-transition>Profile</a>
+      
+      <div class="nav-mobile-user-info">
+        <span class="nav-user-name">Loading...</span> (<span class="nav-user-role">USER</span>)
+      </div>
+      <button class="btn btn-ghost logout-btn mobile-logout-btn">Log Out</button>
+    </nav>
+
+    <div class="nav-actions">
+      <span class="nav-user-info" style="font-weight:600; font-size:.9rem; color:var(--ink-soft); margin-right:15px;">
+        <span class="nav-user-name">Loading...</span> (<span class="nav-user-role" style="font-size:0.7rem; background:var(--sage); color:var(--green); padding:3px 8px; border-radius:10px;">USER</span>)
+      </span>
+      <button class="btn btn-ghost logout-btn">Log Out</button>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="dashboard-hero">
+  <div class="container">
+    
+    <div style="max-width: 760px; margin: 0 auto 30px;">
+      <!-- Dynamic Back Link managed by checking role -->
+      <a href="#" id="backToDashBtn" class="auth-back" style="margin-bottom: 16px;" data-transition>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Back to Dashboard
+      </a>
+      <h2 style="font-size: clamp(2rem, 3.5vw, 2.6rem); margin-top: 10px;">Notifications</h2>
+      <p style="color: var(--ink-soft); margin-top: 6px;">Stay updated on your surplus list actions, active pickup logistics, and account notifications.</p>
+    </div>
+
+    <div class="dashboard-card" style="max-width: 760px; margin: 0 auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid var(--line); padding-bottom: 18px; flex-wrap: wrap; gap: 14px;">
+        <!-- Filters -->
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="btn btn-ghost btn-sm notif-filter-btn active" data-filter="all" style="padding: 6px 14px; font-size: 0.82rem; border-radius: 8px;">All</button>
+          <button class="btn btn-ghost btn-sm notif-filter-btn" data-filter="unread" style="padding: 6px 14px; font-size: 0.82rem; border-radius: 8px;">Unread</button>
+          <button class="btn btn-ghost btn-sm notif-filter-btn" data-filter="matches" style="padding: 6px 14px; font-size: 0.82rem; border-radius: 8px;">Matches</button>
+          <button class="btn btn-ghost btn-sm notif-filter-btn" data-filter="alerts" style="padding: 6px 14px; font-size: 0.82rem; border-radius: 8px;">System Alerts</button>
+        </div>
+        <!-- Actions -->
+        <div>
+          <button class="btn btn-ghost btn-sm" id="markAllReadBtn" style="border: 1px solid var(--line); padding: 8px 14px; font-size: 0.82rem; border-radius: 8px;">Mark all as read</button>
+        </div>
+      </div>
+
+      <!-- Notifications List Container -->
+      <div id="notificationsList">
+        <div class="empty-state">
+          <p>Loading your notifications inbox...</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-bottom" style="border-top: none; padding: 40px 0;">
+      <span>© 2026 FoodSphere 360. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+  // Dynamically configure dashboard redirect back button based on role
+  document.addEventListener('DOMContentLoaded', () => {
+    const backBtn = document.getElementById('backToDashBtn');
+    if (backBtn) {
+      const user = JSON.parse(localStorage.getItem('fs360_currentUser') || '{}');
+      backBtn.href = user.role === 'donor' ? 'donor-dashboard.html' : 'ngo-dashboard.html';
+    }
+  });
+</script>
+</body>
+</html>
