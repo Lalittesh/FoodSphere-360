@@ -12,28 +12,497 @@
   const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  const DEFAULT_AVATAR = `data:image/svg+xml;utf8,${encodeURIComponent(
+    `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" fill="%23E8F3EC"/>
+      <circle cx="50" cy="40" r="20" fill="%231B6B4A"/>
+      <path d="M20 80C20 63.4315 33.4315 50 50 50C66.5685 50 80 63.4315 80 80" stroke="%231B6B4A" stroke-width="6" stroke-linecap="round"/>
+    </svg>`
+  )}`;
+
+  const DEFAULT_NGO_AVATAR = `data:image/svg+xml;utf8,${encodeURIComponent(
+    `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" fill="%23FFE3D1"/>
+      <circle cx="50" cy="40" r="20" fill="%23FF7A33"/>
+      <path d="M20 80C20 63.4315 33.4315 50 50 50C66.5685 50 80 63.4315 80 80" stroke="%23FF7A33" stroke-width="6" stroke-linecap="round"/>
+    </svg>`
+  )}`;
+
   /* ---------------------------------------------------------
      Navbar: scroll state + mobile toggle
   --------------------------------------------------------- */
   function initNavbar() {
-    const nav = $('.navbar');
-    if (!nav) return;
-    const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 16);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
+    renderNavbar();
+  }
 
+  function setupGuestMobileNav() {
     const toggle = $('.nav-toggle');
-    const links = $('.nav-links');
-    if (toggle && links) {
-      toggle.addEventListener('click', () => {
+    const navLinks = $('#navLinks');
+    if (toggle && navLinks) {
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
         const open = toggle.classList.toggle('open');
-        links.classList.toggle('open', open);
+        navLinks.classList.toggle('open', open);
         toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
       });
-      $$('.nav-links a').forEach(a => a.addEventListener('click', () => {
-        toggle.classList.remove('open');
-        links.classList.remove('open');
-      }));
+
+      // Close guest nav links when a link is clicked
+      $$('a', navLinks).forEach(link => {
+        link.addEventListener('click', () => {
+          toggle.classList.remove('open');
+          navLinks.classList.remove('open');
+          toggle.setAttribute('aria-expanded', 'false');
+        });
+      });
+
+      // Close guest nav if clicked outside
+      document.addEventListener('click', (e) => {
+        if (!toggle.contains(e.target) && !navLinks.contains(e.target)) {
+          toggle.classList.remove('open');
+          navLinks.classList.remove('open');
+          toggle.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+  }
+
+  function renderNavbar() {
+    const navbar = $('.navbar');
+    if (!navbar) return;
+
+    const path = window.location.pathname.split('/').pop() || 'index.html';
+    const currentUser = JSON.parse(localStorage.getItem('fs360_currentUser') || 'null');
+
+    // For login, register guest views
+    if (!currentUser || path === 'login.html' || path === 'register.html') {
+      setupGuestMobileNav();
+      return;
+    }
+
+    const isDonor = currentUser.role === 'donor';
+    const userAvatar = currentUser.avatar || (isDonor ? DEFAULT_AVATAR : DEFAULT_NGO_AVATAR);
+    const roleBadgeClass = isDonor ? 'badge-donor' : 'badge-ngo';
+    const profilePage = isDonor ? 'profile-donor.html' : 'profile-ngo.html';
+
+    // Generate links based on role
+    let linksHtml = '';
+    let mobileLinksHtml = '';
+
+    const isLanding = path === 'index.html';
+
+    if (isLanding) {
+      linksHtml = `
+        <a href="#home" class="active">Home</a>
+        <a href="#about">About</a>
+        <a href="#impact">Impact</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#contact">Contact</a>
+      `;
+    }
+
+    if (isDonor) {
+      const donorLinks = [
+        { href: 'donor-dashboard.html', text: 'Dashboard' },
+        { href: 'create-donation.html', text: 'List Food' },
+        { href: 'my-donations.html', text: 'My Donations' },
+        { href: 'emergency-requests.html', text: 'Emergency Requests' },
+        { href: 'profile-donor.html', text: 'Profile' }
+      ];
+      donorLinks.forEach(link => {
+        if (!isLanding) {
+          const isActive = path === link.href ? 'class="active"' : '';
+          linksHtml += `<a href="${link.href}" ${isActive} data-transition>${link.text}</a>`;
+        }
+        
+        // Mobile grid items (short labels)
+        let label = link.text;
+        if (label === 'My Donations') label = 'Donations';
+        if (label === 'Emergency Requests') label = 'Emergency';
+        const mobileActive = path === link.href ? 'active' : '';
+        mobileLinksHtml += `<a href="${link.href}" class="mobile-nav-item ${mobileActive}" data-transition>${label}</a>`;
+      });
+    } else {
+      const ngoLinks = [
+        { href: 'ngo-dashboard.html', text: 'Dashboard' },
+        { href: 'available-donations.html', text: 'Available Donations' },
+        { href: 'accepted-donations.html', text: 'Accepted Pickups' },
+        { href: 'ngo-reports.html', text: 'Reporting Center' },
+        { href: 'emergency-requests.html', text: 'Emergency Requests' },
+        { href: 'profile-ngo.html', text: 'Profile' }
+      ];
+      ngoLinks.forEach(link => {
+        if (!isLanding) {
+          const isActive = path === link.href ? 'class="active"' : '';
+          linksHtml += `<a href="${link.href}" ${isActive} data-transition>${link.text}</a>`;
+        }
+        
+        // Mobile grid items (short labels)
+        let label = link.text;
+        if (label === 'Available Donations') label = 'Available';
+        if (label === 'Accepted Pickups') label = 'Accepted';
+        if (label === 'Reporting Center') label = 'Reports';
+        if (label === 'Emergency Requests') label = 'Emergency';
+        const mobileActive = path === link.href ? 'active' : '';
+        mobileLinksHtml += `<a href="${link.href}" class="mobile-nav-item ${mobileActive}" data-transition>${label}</a>`;
+      });
+    }
+
+    // Unread count check
+    const notifications = JSON.parse(localStorage.getItem('fs360_notifications') || '[]');
+    const userNotifs = notifications.filter(n => n.role === currentUser.role || n.role === 'all');
+    const unreadCount = userNotifs.filter(n => !n.read).length;
+    const badgeStyle = unreadCount > 0 ? '' : 'style="display: none;"';
+
+    navbar.innerHTML = `
+      <div class="container">
+        <!-- Logo / Brand (Line 1 Left on Mobile) -->
+        <a href="index.html" class="brand" data-transition>
+          <span class="brand-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 6 6 9 6 13a6 6 0 0 0 12 0c0-4-2-7-6-11z"/></svg>
+          </span>
+          FoodSphere<span class="accent">360</span>
+        </a>
+
+        <!-- Desktop Navigation Links (Centered) -->
+        <nav class="nav-links desktop-only" id="navLinks">
+          ${linksHtml}
+        </nav>
+
+        <!-- Right actions: Notification Bell + Avatar Dropdown -->
+        <div class="nav-actions">
+          <!-- Desktop Logout Button beside avatar -->
+          <button class="btn btn-ghost logout-btn desktop-logout-btn">Log Out</button>
+
+          <!-- Notification Bell Icon (Beside Profile Image) -->
+          <div class="notif-bell-container">
+            <button class="notif-bell-btn" id="notifBellBtn" aria-label="Notifications">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
+              <span class="notif-badge" id="notifBellBadge" ${badgeStyle}>${unreadCount}</span>
+            </button>
+            
+            <!-- Notification Dropdown Panel -->
+            <div class="notif-dropdown-panel" id="notifDropdownPanel">
+              <div class="notif-panel-header">
+                <h4>Recent Notifications</h4>
+                <button class="btn btn-ghost btn-xs" id="markAllReadDropdownBtn" style="font-size: 0.72rem; padding: 4px 8px; font-weight: 700;">Mark all read</button>
+              </div>
+              <div class="notif-panel-body" id="notifDropdownBody">
+                <!-- Loaded dynamically -->
+              </div>
+              <div class="notif-panel-footer">
+                <a href="notifications.html" class="notif-view-all" data-transition>View All Notifications</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- User Profile Avatar with Dropdown -->
+          <div class="profile-dropdown-container">
+            <button class="profile-trigger-btn" id="profileTriggerBtn" aria-label="Toggle profile menu">
+              <img class="nav-profile-avatar" id="navProfileAvatar" src="${userAvatar}" alt="${currentUser.name}">
+            </button>
+            <div class="profile-dropdown-menu" id="profileDropdown">
+              <div class="dropdown-header-info">
+                <span class="dropdown-user-name">${currentUser.name}</span>
+                <span class="dropdown-user-role ${roleBadgeClass}">${currentUser.role}</span>
+              </div>
+              <a href="${isDonor ? 'donor-dashboard.html' : 'ngo-dashboard.html'}" class="dropdown-item" data-transition>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                Go to Dashboard
+              </a>
+              <a href="${profilePage}" class="dropdown-item" data-transition>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                View Profile
+              </a>
+              <a href="${profilePage}" class="dropdown-item" data-transition>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                Edit Profile
+              </a>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item logout-btn" style="color: #E0463A;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E0463A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                Logout
+              </button>
+            </div>
+          </div>
+
+          <!-- Hamburger Toggle Menu (Line 1 Right on Mobile) -->
+          <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Dropdown Drawer (Line 2 and Line 3) -->
+      <div class="mobile-menu-drawer" id="mobileMenuDrawer">
+        <!-- LINE 2: User details row -->
+        <div class="mobile-user-row">
+          <img class="nav-profile-avatar clickable-mobile-avatar" id="mobileNavAvatar" src="${userAvatar}" alt="${currentUser.name}">
+          <div class="mobile-user-meta">
+            <span class="nav-user-name">${currentUser.name}</span>
+            <span class="nav-user-role ${roleBadgeClass}">${currentUser.role}</span>
+          </div>
+        </div>
+        <!-- LINE 3: Grid navigation links -->
+        <div class="mobile-nav-grid">
+          ${mobileLinksHtml}
+        </div>
+      </div>
+    `;
+
+    setupNavbarListeners();
+  }
+
+  function setupNavbarListeners() {
+    const nav = $('.navbar');
+    if (!nav) return;
+
+    // Scroll effect
+    const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 16);
+    onScroll();
+    window.removeEventListener('scroll', onScroll);
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // Mobile Toggle Hamburger
+    const toggle = $('.nav-toggle');
+    const drawer = $('#mobileMenuDrawer');
+    if (toggle && drawer) {
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const open = toggle.classList.toggle('open');
+        drawer.classList.toggle('open', open);
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        
+        // Close other panels
+        $('#profileDropdown')?.classList.remove('active');
+        $('#notifDropdownPanel')?.classList.remove('active');
+      });
+    }
+
+    // Profile Dropdown Toggle
+    const profileTrigger = $('#profileTriggerBtn');
+    const profileDropdown = $('#profileDropdown');
+    if (profileTrigger && profileDropdown) {
+      profileTrigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        profileDropdown.classList.toggle('active');
+        
+        // Close other panels
+        $('#notifDropdownPanel')?.classList.remove('active');
+        drawer?.classList.remove('open');
+        toggle?.classList.remove('open');
+      });
+    }
+
+    // Clicking avatar on mobile row should also toggle profile dropdown
+    const mobileAvatar = $('#mobileNavAvatar');
+    if (mobileAvatar && profileDropdown) {
+      mobileAvatar.addEventListener('click', (e) => {
+        e.stopPropagation();
+        profileDropdown.classList.toggle('active');
+        
+        // Close notifications
+        $('#notifDropdownPanel')?.classList.remove('active');
+      });
+    }
+
+    // Notification Dropdown Toggle
+    const notifBell = $('#notifBellBtn');
+    const notifDropdown = $('#notifDropdownPanel');
+    if (notifBell && notifDropdown) {
+      notifBell.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = notifDropdown.classList.toggle('active');
+        
+        if (isOpen) {
+          renderNotificationDropdownList();
+        }
+
+        // Close other panels
+        profileDropdown?.classList.remove('active');
+        drawer?.classList.remove('open');
+        toggle?.classList.remove('open');
+      });
+    }
+
+    // Bind Logout Buttons
+    $$('.logout-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('fs360_currentUser');
+        
+        // Full page transition screen overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'page-transition';
+        overlay.innerHTML = `<div class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 6 6 9 6 13a6 6 0 0 0 12 0c0-4-2-7-6-11z"/></svg></div>`;
+        document.body.appendChild(overlay);
+        requestAnimationFrame(() => overlay.classList.add('animate-in'));
+        
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 500);
+      });
+    });
+
+    // Mark All Read from Dropdown
+    const markAllReadBtn = $('#markAllReadDropdownBtn');
+    if (markAllReadBtn) {
+      markAllReadBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const currentUser = JSON.parse(localStorage.getItem('fs360_currentUser'));
+        if (!currentUser) return;
+
+        const allNotifs = JSON.parse(localStorage.getItem('fs360_notifications') || '[]');
+        let updated = false;
+        allNotifs.forEach(n => {
+          if ((n.role === currentUser.role || n.role === 'all') && !n.read) {
+            n.read = true;
+            updated = true;
+          }
+        });
+
+        if (updated) {
+          localStorage.setItem('fs360_notifications', JSON.stringify(allNotifs));
+          showToast('success', 'Inbox Read', 'All notifications marked as read.');
+          
+          updateNotifBadge();
+          renderNotificationDropdownList();
+          
+          if (typeof initNotificationsPage === 'function') {
+            initNotificationsPage();
+          }
+        }
+      });
+    }
+
+    // Click outside to close dropdowns
+    document.addEventListener('click', (e) => {
+      if (profileDropdown && !profileTrigger?.contains(e.target) && !profileDropdown.contains(e.target) && !mobileAvatar?.contains(e.target)) {
+        profileDropdown.classList.remove('active');
+      }
+      if (notifDropdown && !notifBell?.contains(e.target) && !notifDropdown.contains(e.target)) {
+        notifDropdown.classList.remove('active');
+      }
+    });
+  }
+
+  function updateNotifBadge() {
+    const badge = $('#notifBellBadge');
+    if (!badge) return;
+
+    const currentUser = JSON.parse(localStorage.getItem('fs360_currentUser') || 'null');
+    if (!currentUser) return;
+
+    const notifications = JSON.parse(localStorage.getItem('fs360_notifications') || '[]');
+    const userNotifs = notifications.filter(n => n.role === currentUser.role || n.role === 'all');
+    const unreadCount = userNotifs.filter(n => !n.read).length;
+
+    badge.textContent = unreadCount;
+    if (unreadCount > 0) {
+      badge.style.display = '';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  function renderNotificationDropdownList() {
+    const listContainer = $('#notifDropdownBody');
+    if (!listContainer) return;
+
+    const currentUser = JSON.parse(localStorage.getItem('fs360_currentUser'));
+    if (!currentUser) return;
+
+    const notifs = JSON.parse(localStorage.getItem('fs360_notifications') || '[]');
+    const userNotifs = notifs.filter(n => n.role === currentUser.role || n.role === 'all');
+    const latestNotifs = [...userNotifs].reverse().slice(0, 5);
+
+    if (latestNotifs.length === 0) {
+      listContainer.innerHTML = `
+        <div style="padding: 20px; text-align: center; color: var(--ink-soft); font-size: 0.82rem;">
+          No notifications yet.
+        </div>`;
+      return;
+    }
+
+    let html = '';
+    latestNotifs.forEach(n => {
+      let iconColor = 'var(--green)';
+      let iconBg = 'var(--sage)';
+      let iconSvg = '';
+
+      if (n.type === 'success') {
+        iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg>';
+      } else if (n.type === 'alert') {
+        iconColor = '#E0463A';
+        iconBg = '#FEE2E2';
+        iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+      } else { // match
+        iconColor = 'var(--orange-dark)';
+        iconBg = 'var(--orange-soft)';
+        iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 6 6 9 6 13a6 6 0 0 0 12 0c0-4-2-7-6-11z"/></svg>';
+      }
+
+      const unreadClass = !n.read ? 'unread' : '';
+      const actionHtml = !n.read 
+        ? `<button class="notif-item-action mark-single-read-dropdown-btn" data-id="${n.id}" title="Mark as read">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+           </button>` 
+        : '';
+
+      html += `
+        <div class="notif-panel-item ${unreadClass}">
+          <div class="notif-item-icon" style="background: ${iconBg}; color: ${iconColor};">
+            <span style="width:16px; height:16px; display:block;">${iconSvg}</span>
+          </div>
+          <div class="notif-item-content">
+            <span class="notif-item-title">${n.title}</span>
+            <span class="notif-item-desc">${n.desc}</span>
+            <span class="notif-item-time">${n.time}</span>
+          </div>
+          ${actionHtml}
+        </div>`;
+    });
+
+    listContainer.innerHTML = html;
+
+    $$('.mark-single-read-dropdown-btn', listContainer).forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        const allNotifs = JSON.parse(localStorage.getItem('fs360_notifications') || '[]');
+        const match = allNotifs.find(n => n.id === id);
+        if (match) {
+          match.read = true;
+          localStorage.setItem('fs360_notifications', JSON.stringify(allNotifs));
+          showToast('success', 'Notification Read', 'Alert marked as read.');
+          
+          updateNotifBadge();
+          renderNotificationDropdownList();
+          
+          if (typeof initNotificationsPage === 'function') {
+            initNotificationsPage();
+          }
+        }
+      });
+    });
+  }
+
+  function propagateAvatars() {
+    const currentUser = JSON.parse(localStorage.getItem('fs360_currentUser') || 'null');
+    if (!currentUser) return;
+
+    const isDonor = currentUser.role === 'donor';
+    const userAvatar = currentUser.avatar || (isDonor ? DEFAULT_AVATAR : DEFAULT_NGO_AVATAR);
+
+    // Dashboard header profile avatar
+    const headerAvatar = $('#dashboardHeaderAvatar');
+    if (headerAvatar) {
+      headerAvatar.src = userAvatar;
+      headerAvatar.alt = currentUser.name;
     }
   }
 
@@ -723,29 +1192,116 @@
     // If logged in on landing page, update navbar actions dynamically
     if (currentUser && (path === 'index.html' || path === '' || path === '/')) {
       const navActions = $('.nav-actions');
-      if (navActions) {
+      const navbar = $('.navbar');
+      if (navActions && navbar) {
         const dashboardUrl = currentUser.role === 'donor' ? 'donor-dashboard.html' : 'ngo-dashboard.html';
+        const isDonor = currentUser.role === 'donor';
+        const userAvatar = currentUser.avatar || (isDonor ? DEFAULT_AVATAR : DEFAULT_NGO_AVATAR);
+        const roleBadgeClass = isDonor ? 'badge-donor' : 'badge-ngo';
+        const profilePage = isDonor ? 'profile-donor.html' : 'profile-ngo.html';
+
+        // Unread count
+        const notifications = JSON.parse(localStorage.getItem('fs360_notifications') || '[]');
+        const userNotifs = notifications.filter(n => n.role === currentUser.role || n.role === 'all');
+        const unreadCount = userNotifs.filter(n => !n.read).length;
+        const badgeStyle = unreadCount > 0 ? '' : 'style="display: none;"';
+
         navActions.innerHTML = `
           <a href="${dashboardUrl}" class="btn btn-primary" style="margin-right:10px;" data-transition>Go to Dashboard</a>
-          <button class="btn btn-ghost logout-btn">Log Out</button>
-          <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          
+          <!-- Notification Bell Icon -->
+          <div class="notif-bell-container" style="margin-right:10px;">
+            <button class="notif-bell-btn" id="notifBellBtn" aria-label="Notifications">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
+              <span class="notif-badge" id="notifBellBadge" ${badgeStyle}>${unreadCount}</span>
+            </button>
+            <div class="notif-dropdown-panel" id="notifDropdownPanel">
+              <div class="notif-panel-header">
+                <h4>Recent Notifications</h4>
+                <button class="btn btn-ghost btn-xs" id="markAllReadDropdownBtn" style="font-size: 0.72rem; padding: 4px 8px; font-weight: 700;">Mark all read</button>
+              </div>
+              <div class="notif-panel-body" id="notifDropdownBody"></div>
+              <div class="notif-panel-footer">
+                <a href="notifications.html" class="notif-view-all" data-transition>View All Notifications</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- User Profile Avatar with Dropdown -->
+          <div class="profile-dropdown-container">
+            <button class="profile-trigger-btn" id="profileTriggerBtn" aria-label="Toggle profile menu">
+              <img class="nav-profile-avatar" id="navProfileAvatar" src="${userAvatar}" alt="${currentUser.name}">
+            </button>
+            <div class="profile-dropdown-menu" id="profileDropdown">
+              <div class="dropdown-header-info">
+                <span class="dropdown-user-name">${currentUser.name}</span>
+                <span class="dropdown-user-role ${roleBadgeClass}">${currentUser.role}</span>
+              </div>
+              <a href="${profilePage}" class="dropdown-item" data-transition>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                View Profile
+              </a>
+              <a href="${profilePage}" class="dropdown-item" data-transition>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                Edit Profile
+              </a>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item logout-btn" style="color: #E0463A;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E0463A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                Logout
+              </button>
+            </div>
+          </div>
+
+          <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false" style="margin-left: 10px;">
             <span></span><span></span><span></span>
           </button>
         `;
         
-        // Update nav-links mobile drawer actions
-        const navLinks = $('#navLinks');
-        if (navLinks) {
-          const mobileActions = $('.nav-mobile-actions', navLinks);
-          if (mobileActions) {
-            mobileActions.innerHTML = `
-              <a href="${dashboardUrl}" class="btn btn-primary" style="width: 100%; margin-top: 10px;" data-transition>Go to Dashboard</a>
-              <button class="btn btn-ghost logout-btn" style="width: 100%; margin-top: 10px;">Log Out</button>
-            `;
-          }
+        let mobileDrawer = $('#mobileMenuDrawer');
+        if (!mobileDrawer) {
+          mobileDrawer = document.createElement('div');
+          mobileDrawer.id = 'mobileMenuDrawer';
+          mobileDrawer.className = 'mobile-menu-drawer';
+          navbar.appendChild(mobileDrawer);
         }
+
+        let mobileLinksHtml = '';
+        if (isDonor) {
+          mobileLinksHtml = `
+            <a href="donor-dashboard.html" class="mobile-nav-item">Dashboard</a>
+            <a href="create-donation.html" class="mobile-nav-item">List Food</a>
+            <a href="my-donations.html" class="mobile-nav-item">Donations</a>
+            <a href="emergency-requests.html" class="mobile-nav-item">Emergency</a>
+            <a href="${profilePage}" class="mobile-nav-item">Profile</a>
+          `;
+        } else {
+          mobileLinksHtml = `
+            <a href="ngo-dashboard.html" class="mobile-nav-item">Dashboard</a>
+            <a href="available-donations.html" class="mobile-nav-item">Available</a>
+            <a href="accepted-donations.html" class="mobile-nav-item">Accepted</a>
+            <a href="ngo-reports.html" class="mobile-nav-item">Reports</a>
+            <a href="emergency-requests.html" class="mobile-nav-item">Emergency</a>
+            <a href="${profilePage}" class="mobile-nav-item">Profile</a>
+          `;
+        }
+        mobileDrawer.innerHTML = `
+          <div class="mobile-user-row">
+            <img class="nav-profile-avatar clickable-mobile-avatar" id="mobileNavAvatar" src="${userAvatar}" alt="${currentUser.name}">
+            <div class="mobile-user-meta">
+              <span class="nav-user-name">${currentUser.name}</span>
+              <span class="nav-user-role ${roleBadgeClass}">${currentUser.role}</span>
+            </div>
+          </div>
+          <div class="mobile-nav-grid">
+            ${mobileLinksHtml}
+          </div>
+        `;
         
-        initNavbar();
+        setupNavbarListeners();
       }
     }
 
@@ -1446,7 +2002,10 @@
     }
     
     let html = '<div class="donations-grid">';
+    const users = JSON.parse(localStorage.getItem('fs360_users') || '[]');
     pendingDons.forEach(d => {
+      const donorUser = users.find(u => u.email === d.donorEmail);
+      const donorAvatar = donorUser?.avatar || DEFAULT_AVATAR;
       html += `
         <div class="donation-card">
           ${d.photoUrl ? `
@@ -1459,7 +2018,10 @@
             <p class="don-exp">Expiry: <strong>${d.expiry}</strong></p>
             
             <div class="contact-details" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 0.82rem;">
-              <div style="margin-bottom: 4px; color: var(--ink);">Donor: <strong>${d.donorName}</strong></div>
+              <div style="margin-bottom: 8px; color: var(--ink); display: flex; align-items: center; gap: 8px;">
+                <img class="card-user-avatar" src="${donorAvatar}" alt="${d.donorName}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;">
+                <span>Donor: <strong>${d.donorName}</strong></span>
+              </div>
               <div style="margin-bottom: 4px; color: var(--ink-soft);">Phone: <strong>${d.donorPhone || 'N/A'}</strong></div>
               <div style="margin-bottom: 8px; color: var(--ink-soft);">Email: <strong>${d.donorEmail}</strong></div>
               <div style="display: flex; gap: 8px; margin-top: 8px; margin-bottom: 4px;">
@@ -1634,6 +2196,9 @@
     if (don.status === 'Accepted') {
       actionBtnHtml = `<button id="markCollectedBtn" class="btn btn-accent btn-lg" style="margin-top:20px;">Mark as Collected &amp; Delivered</button>`;
     }
+    const users = JSON.parse(localStorage.getItem('fs360_users') || '[]');
+    const donorUser = users.find(u => u.email === don.donorEmail);
+    const donorAvatar = donorUser?.avatar || DEFAULT_AVATAR;
 
     container.innerHTML = `
       <div class="details-card">
@@ -1654,7 +2219,13 @@
           </div>
           <div class="details-section">
             <h5>Donor Information</h5>
-            <p>Organization/Name: <strong>${don.donorName}</strong></p>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px;">
+              <img class="nav-profile-avatar" src="${donorAvatar}" alt="${don.donorName}" style="width: 50px; height: 50px; border: 2.5px solid var(--white); box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              <div>
+                <div style="font-weight: 700; font-size: 1.05rem; color: var(--ink);">${don.donorName}</div>
+                <div style="font-size: 0.82rem; color: var(--ink-soft);">Food Donor Partner</div>
+              </div>
+            </div>
             <p>Email: <strong>${don.donorEmail}</strong></p>
             <p>Contact Phone: <strong>${don.donorPhone || 'N/A'}</strong></p>
             <div style="display: flex; gap: 12px; margin-top: 14px;">
@@ -2142,22 +2713,6 @@
       window.location.href = 'login.html';
       return;
     }
-
-    const DEFAULT_AVATAR = `data:image/svg+xml;utf8,${encodeURIComponent(
-      `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="100" height="100" fill="%23E8F3EC"/>
-        <circle cx="50" cy="40" r="20" fill="%231B6B4A"/>
-        <path d="M20 80C20 63.4315 33.4315 50 50 50C66.5685 50 80 63.4315 80 80" stroke="%231B6B4A" stroke-width="6" stroke-linecap="round"/>
-      </svg>`
-    )}`;
-
-    const DEFAULT_NGO_AVATAR = `data:image/svg+xml;utf8,${encodeURIComponent(
-      `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="100" height="100" fill="%23FFE3D1"/>
-        <circle cx="50" cy="40" r="20" fill="%23FF7A33"/>
-        <path d="M20 80C20 63.4315 33.4315 50 50 50C66.5685 50 80 63.4315 80 80" stroke="%23FF7A33" stroke-width="6" stroke-linecap="round"/>
-      </svg>`
-    )}`;
 
     const avatarImg = $('#profileAvatarImg');
     const photoInput = $('#profilePhotoInput');
@@ -2694,9 +3249,13 @@
       }
 
       let html = '<div class="donations-grid">';
+      const users = JSON.parse(localStorage.getItem('fs360_users') || '[]');
       activeRequests.reverse().forEach(req => {
         let badgeColor = 'background: #FFE3D1; color: var(--orange-dark);';
         if (req.urgency === 'Urgent') badgeColor = 'background: #FEE2E2; color: #E0463A;';
+
+        const ngoUser = users.find(u => u.name === req.ngoName);
+        const ngoAvatar = ngoUser?.avatar || DEFAULT_NGO_AVATAR;
 
         html += `
           <div class="donation-card" style="border: 1.5px solid #FEE2E2;">
@@ -2704,7 +3263,10 @@
               <span class="eyebrow" style="${badgeColor} padding: 4px 10px; font-size: 0.7rem; border-radius:10px;">${req.urgency} EMERGENCY</span>
             </div>
             <div class="don-card-content" style="padding-top:8px;">
-              <h4 style="margin-bottom:6px;">NGO: ${req.ngoName}</h4>
+              <h4 style="margin-bottom:8px; display: flex; align-items: center; gap: 8px;">
+                <img class="card-user-avatar" src="${ngoAvatar}" alt="${req.ngoName}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;">
+                <span>NGO: ${req.ngoName}</span>
+              </h4>
               <p style="margin-bottom:6px; color:var(--ink); font-size:0.95rem;"><strong>Needs: ${req.itemsNeeded}</strong></p>
               <p style="font-size:0.83rem; color:var(--ink-soft); margin-bottom:4px;">Location: <strong>${req.location}</strong></p>
               <p style="font-size:0.83rem; color:var(--ink-soft); margin-bottom:12px;">Contact: <strong>${req.phone}</strong></p>
@@ -2824,6 +3386,9 @@
     initProfileForm();
     initNotificationsPage();
     initEmergencyRequestsPage();
+    
+    // Propagate avatars to header and details
+    propagateAvatars();
 
     // Cross-tab profile updates
     window.addEventListener('storage', (e) => {
@@ -2831,6 +3396,16 @@
         const currentUser = JSON.parse(e.newValue || 'null');
         if (currentUser) {
           $$('.nav-user-name').forEach(el => el.textContent = currentUser.name);
+          
+          // Cross-tab avatar updates
+          const isDonor = currentUser.role === 'donor';
+          const userAvatar = currentUser.avatar || (isDonor ? DEFAULT_AVATAR : DEFAULT_NGO_AVATAR);
+          $$('.nav-profile-avatar').forEach(el => el.src = userAvatar);
+          
+          const headerAvatar = $('#dashboardHeaderAvatar');
+          if (headerAvatar) {
+            headerAvatar.src = userAvatar;
+          }
         }
       }
     });

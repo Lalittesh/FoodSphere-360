@@ -20,29 +20,8 @@
       </span>
       FoodSphere<span class="accent">360</span>
     </a>
-
-    <nav class="nav-links" id="navLinks">
-      <a href="ngo-dashboard.html" class="active">Dashboard</a>
-      <a href="available-donations.html" data-transition>Available Donations</a>
-      <a href="accepted-donations.html" data-transition>Accepted Pickups</a>
-      <a href="emergency-requests.html" data-transition>Emergency Requests</a>
-      <a href="notifications.html" data-transition>Notifications</a>
-      <a href="ngo-reports.html" data-transition>Reporting Center</a>
-      <a href="profile-ngo.html" data-transition>Profile</a>
-      <div class="nav-mobile-user-info">
-        <span class="nav-user-name">Loading...</span> (<span class="nav-user-role">NGO</span>)
-      </div>
-      <button class="btn btn-ghost logout-btn mobile-logout-btn">Log Out</button>
-    </nav>
-
     <div class="nav-actions">
-      <span class="nav-user-info" style="font-weight:600; font-size:.9rem; color:var(--ink-soft); margin-right:15px;">
-        <span class="nav-user-name">Loading...</span> (<span class="nav-user-role" style="font-size:0.7rem; background:var(--orange-soft); color:var(--orange); padding:3px 8px; border-radius:10px;">NGO</span>)
-      </span>
-      <button class="btn btn-ghost logout-btn">Log Out</button>
-      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
+      <div style="width: 40px; height: 40px;"></div>
     </div>
   </div>
 </header>
@@ -51,13 +30,18 @@
 <main class="dashboard-hero">
   <div class="container">
     
-    <div class="dashboard-title-row">
-      <div>
-        <span class="eyebrow">NGO Workspace</span>
-        <h2 style="font-size: clamp(2rem, 3.5vw, 2.8rem); margin-top: 10px;">Welcome back, <span class="nav-user-name" style="color: var(--green);">NGO</span>!</h2>
-        <p style="color: var(--ink-soft); margin-top: 8px;">Find matching surplus food near you and manage active distributions.</p>
+    <div class="dashboard-title-row" style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div class="dashboard-header-avatar-container">
+          <img id="dashboardHeaderAvatar" class="dashboard-header-avatar" src="" alt="User Avatar">
+        </div>
+        <div>
+          <span class="eyebrow">NGO Workspace</span>
+          <h2 style="font-size: clamp(2rem, 3.5vw, 2.8rem); margin-top: 6px; margin-bottom: 0;">Welcome back, <span class="nav-user-name" style="color: var(--green);">NGO</span>!</h2>
+          <p style="color: var(--ink-soft); margin-top: 6px; margin-bottom: 0;">Find matching surplus food near you and manage active distributions.</p>
+        </div>
       </div>
-      <div>
+      <div style="margin-left: auto;">
         <a href="available-donations.html" class="btn btn-accent btn-lg" data-transition>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
           Browse Available Food

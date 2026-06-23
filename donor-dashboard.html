@@ -18,28 +18,8 @@
       </span>
       FoodSphere<span class="accent">360</span>
     </a>
-
-    <nav class="nav-links" id="navLinks">
-      <a href="donor-dashboard.html" class="active">Dashboard</a>
-      <a href="create-donation.html" data-transition>List Food</a>
-      <a href="my-donations.html" data-transition>My Donations</a>
-      <a href="emergency-requests.html" data-transition>Emergency Requests</a>
-      <a href="notifications.html" data-transition>Notifications</a>
-      <a href="profile-donor.html" data-transition>Profile</a>
-      <div class="nav-mobile-user-info">
-        <span class="nav-user-name">Loading...</span> (<span class="nav-user-role">DONOR</span>)
-      </div>
-      <button class="btn btn-ghost logout-btn mobile-logout-btn">Log Out</button>
-    </nav>
-
     <div class="nav-actions">
-      <span class="nav-user-info" style="font-weight:600; font-size:.9rem; color:var(--ink-soft); margin-right:15px;">
-        <span class="nav-user-name">Loading...</span> (<span class="nav-user-role" style="font-size:0.7rem; background:var(--sage); color:var(--green); padding:3px 8px; border-radius:10px;">DONOR</span>)
-      </span>
-      <button class="btn btn-ghost logout-btn">Log Out</button>
-      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
+      <div style="width: 40px; height: 40px;"></div>
     </div>
   </div>
 </header>
@@ -48,13 +28,18 @@
 <main class="dashboard-hero">
   <div class="container">
     
-    <div class="dashboard-title-row">
-      <div>
-        <span class="eyebrow">Donor Workspace</span>
-        <h2 style="font-size: clamp(2rem, 3.5vw, 2.8rem); margin-top: 10px;">Welcome back, <span class="nav-user-name" style="color: var(--green);">Donor</span>!</h2>
-        <p style="color: var(--ink-soft); margin-top: 8px;">Let's get good food moving. Below is your real-time surplus dashboard.</p>
+    <div class="dashboard-title-row" style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div class="dashboard-header-avatar-container">
+          <img id="dashboardHeaderAvatar" class="dashboard-header-avatar" src="" alt="User Avatar">
+        </div>
+        <div>
+          <span class="eyebrow">Donor Workspace</span>
+          <h2 style="font-size: clamp(2rem, 3.5vw, 2.8rem); margin-top: 6px; margin-bottom: 0;">Welcome back, <span class="nav-user-name" style="color: var(--green);">Donor</span>!</h2>
+          <p style="color: var(--ink-soft); margin-top: 6px; margin-bottom: 0;">Let's get good food moving. Below is your real-time surplus dashboard.</p>
+        </div>
       </div>
-      <div>
+      <div style="margin-left: auto;">
         <a href="create-donation.html" class="btn btn-accent btn-lg" data-transition>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
           List Surplus Food
