@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NGO Profile — FoodSphere 360</title>
+<meta name="description" content="Manage your NGO profile settings, registration number, description, and logo on FoodSphere 360.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<header class="navbar">
+  <div class="container">
+    <a href="index.html" class="brand" data-transition>
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 6 6 9 6 13a6 6 0 0 0 12 0c0-4-2-7-6-11z"/></svg>
+      </span>
+      FoodSphere<span class="accent">360</span>
+    </a>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="ngo-dashboard.html" data-transition>Dashboard</a>
+      <a href="available-donations.html" data-transition>Available Donations</a>
+      <a href="accepted-donations.html" data-transition>Accepted Pickups</a>
+      <a href="ngo-reports.html" data-transition>Reporting Center</a>
+      <a href="profile-ngo.html" class="active">Profile</a>
+    </nav>
+
+    <div class="nav-actions">
+      <span class="nav-user-info" style="font-weight:600; font-size:.9rem; color:var(--ink-soft); margin-right:15px;">
+        <span class="nav-user-name">Loading...</span> (<span class="nav-user-role" style="font-size:0.7rem; background:var(--orange-soft); color:var(--orange); padding:3px 8px; border-radius:10px;">NGO</span>)
+      </span>
+      <button class="btn btn-ghost logout-btn">Log Out</button>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="dashboard-hero">
+  <div class="container">
+    
+    <div class="dashboard-title-row" style="margin-bottom: 30px;">
+      <div>
+        <a href="ngo-dashboard.html" class="auth-back" style="margin-bottom: 16px;" data-transition>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          Back to Dashboard
+        </a>
+        <h2 style="font-size: clamp(2rem, 3.5vw, 2.8rem); margin-top: 10px;">Profile Settings</h2>
+        <p style="color: var(--ink-soft); margin-top: 8px;">Keep your contact information and NGO details up to date.</p>
+      </div>
+    </div>
+
+    <!-- PROFILE LAYOUT GRID -->
+    <div class="profile-grid">
+      
+      <!-- LEFT PROFILE CARD -->
+      <aside class="profile-card-left">
+        <div class="profile-photo-wrapper">
+          <img id="profileAvatarImg" class="profile-avatar" src="" alt="NGO Logo">
+          <label for="profilePhotoInput" class="profile-photo-overlay">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Change Logo
+          </label>
+        </div>
+        <input type="file" id="profilePhotoInput" accept="image/*" style="display: none;">
+        
+        <button type="button" class="profile-photo-btn" id="changePhotoBtn">Upload Logo</button>
+        
+        <h3 class="profile-name-title" id="profileCardName">Loading...</h3>
+        <span class="profile-role-badge ngo-role">NGO Partner</span>
+        
+        <div class="profile-stat-box">
+          <div class="profile-stat-item">
+            <span class="profile-stat-label">People Served</span>
+            <span class="profile-stat-value" id="profileStatPeople">1,200+ served</span>
+          </div>
+          <div class="profile-stat-item">
+            <span class="profile-stat-label">Food Received</span>
+            <span class="profile-stat-value" id="profileStatFood">420 kg</span>
+          </div>
+          <div class="profile-stat-item">
+            <span class="profile-stat-label">Active Matches</span>
+            <span class="profile-stat-value" id="profileStatActive">3 active</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- RIGHT SETTINGS FORM -->
+      <section class="dashboard-card" style="margin-bottom: 0;">
+        <h3 style="margin-top: 0;">NGO Information</h3>
+        <form id="profileNgoForm" novalidate>
+          <div class="profile-form-grid">
+            
+            <!-- NGO Name -->
+            <div class="field">
+              <label for="ngoName">NGO Name <span style="color:#E0463A;">*</span></label>
+              <div class="input-shell">
+                <input type="text" id="ngoName" placeholder="e.g. Food Relief Foundation" required>
+              </div>
+              <div class="field-error"></div>
+            </div>
+
+            <!-- Email Address -->
+            <div class="field">
+              <label for="ngoEmail">Email Address <span style="color:#E0463A;">*</span></label>
+              <div class="input-shell">
+                <input type="email" id="ngoEmail" placeholder="you@foundation.org" required>
+              </div>
+              <div class="field-error"></div>
+            </div>
+
+            <!-- Phone Number -->
+            <div class="field">
+              <label for="ngoPhone">Phone Number <span style="color:#E0463A;">*</span></label>
+              <div class="input-shell">
+                <input type="tel" id="ngoPhone" placeholder="+91 87654 32109" required>
+              </div>
+              <div class="field-error"></div>
+            </div>
+
+            <!-- NGO Registration Number -->
+            <div class="field">
+              <label for="ngoRegNum">Registration Number <span style="color:#E0463A;">*</span></label>
+              <div class="input-shell">
+                <input type="text" id="ngoRegNum" placeholder="e.g. NGO-REG-2026-987" required>
+              </div>
+              <div class="field-error"></div>
+            </div>
+
+            <!-- Address -->
+            <div class="field profile-form-full">
+              <label for="ngoAddress">Street Address</label>
+              <div class="input-shell">
+                <input type="text" id="ngoAddress" placeholder="e.g. 45, North Veli Street">
+              </div>
+              <div class="field-error"></div>
+            </div>
+
+            <!-- City -->
+            <div class="field">
+              <label for="ngoCity">City</label>
+              <div class="input-shell">
+                <input type="text" id="ngoCity" placeholder="e.g. Madurai">
+              </div>
+              <div class="field-error"></div>
+            </div>
+
+            <!-- State -->
+            <div class="field">
+              <label for="ngoState">State</label>
+              <div class="input-shell">
+                <input type="text" id="ngoState" placeholder="e.g. Tamil Nadu">
+              </div>
+              <div class="field-error"></div>
+            </div>
+
+            <!-- Pincode -->
+            <div class="field">
+              <label for="ngoPincode">Pincode</label>
+              <div class="input-shell">
+                <input type="text" id="ngoPincode" placeholder="e.g. 625001">
+              </div>
+              <div class="field-error"></div>
+            </div>
+
+            <!-- NGO Description -->
+            <div class="field profile-form-full">
+              <label for="ngoAbout">NGO Description</label>
+              <div class="input-shell" style="align-items: flex-start; padding: 6px 0;">
+                <textarea id="ngoAbout" placeholder="Brief details about your feeding operations, sheltering target, and distribution capacity..." style="width: 100%; border: none; background: transparent; padding: 10px 14px; font-family: inherit; font-size: .93rem; color: var(--ink); outline: none; min-height: 100px; resize: vertical;"></textarea>
+              </div>
+              <div class="field-error"></div>
+            </div>
+
+          </div>
+
+          <div class="profile-actions-bar">
+            <button type="button" class="btn btn-ghost" id="cancelChangesBtn">Cancel Changes</button>
+            <button type="submit" class="btn btn-primary" id="saveChangesBtn">
+              <span class="btn-label">Save Changes</span>
+              <span class="btn-spinner"></span>
+            </button>
+          </div>
+        </form>
+      </section>
+
+    </div>
+
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-bottom" style="border-top: none; padding: 40px 0;">
+      <span>© 2026 FoodSphere 360. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

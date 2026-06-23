@@ -711,8 +711,8 @@
     const currentUser = JSON.parse(localStorage.getItem('fs360_currentUser') || 'null');
 
     // Page route categorization
-    const donorPages = ['donor-dashboard.html', 'create-donation.html', 'my-donations.html'];
-    const ngoPages = ['ngo-dashboard.html', 'available-donations.html', 'accepted-donations.html', 'donation-details.html', 'ngo-reports.html'];
+    const donorPages = ['donor-dashboard.html', 'create-donation.html', 'my-donations.html', 'profile-donor.html'];
+    const ngoPages = ['ngo-dashboard.html', 'available-donations.html', 'accepted-donations.html', 'donation-details.html', 'ngo-reports.html', 'profile-ngo.html'];
 
     // If logged in, prevent accessing login and register pages, auto-redirect to dashboards
     if (currentUser && (path === 'login.html' || path === 'register.html')) {
@@ -2060,6 +2060,366 @@
   }
 
   /* ---------------------------------------------------------
+     Profile Management System Logic
+     --------------------------------------------------------- */
+  function updateProfileStats(currentUser) {
+    const donations = JSON.parse(localStorage.getItem('fs360_donations') || '[]');
+    if (currentUser.role === 'donor') {
+      const myDons = donations.filter(d => d.donorEmail === currentUser.email);
+      let totalMeals = 0;
+      const matchedNgos = new Set();
+      myDons.forEach(d => {
+        const qtyNum = parseInt(d.quantity) || 0;
+        if (d.status === 'Accepted' || d.status === 'Delivered') {
+          totalMeals += qtyNum;
+          if (d.matchedNgo) matchedNgos.add(d.matchedNgo);
+        }
+      });
+      const baseMeals = 340 + totalMeals;
+      const baseCarbon = 150 + Math.round(totalMeals * 0.45);
+      const baseNgos = 4 + matchedNgos.size;
+
+      const statFood = $('#profileStatFood');
+      const statCarbon = $('#profileStatCarbon');
+      const statNgos = $('#profileStatNgos');
+      if (statFood) statFood.textContent = `${baseMeals.toLocaleString()} meals`;
+      if (statCarbon) statCarbon.textContent = `${baseCarbon.toLocaleString()} kg`;
+      if (statNgos) statNgos.textContent = `${baseNgos} NGO${baseNgos !== 1 ? 's' : ''}`;
+    } else {
+      const acceptedDons = donations.filter(d => d.ngoEmail === currentUser.email);
+      let totalMeals = 0;
+      let activeCount = 0;
+      acceptedDons.forEach(d => {
+        const qtyNum = parseInt(d.quantity) || 0;
+        if (d.status === 'Delivered') {
+          totalMeals += qtyNum;
+        } else if (d.status === 'Accepted') {
+          activeCount++;
+        }
+      });
+      const basePeople = 1200 + totalMeals;
+      const totalKg = 420 + (totalMeals * 0.25);
+
+      const statPeople = $('#profileStatPeople');
+      const statFood = $('#profileStatFood');
+      const statActive = $('#profileStatActive');
+      if (statPeople) statPeople.textContent = `${basePeople.toLocaleString()}+ served`;
+      if (statFood) statFood.textContent = `${Math.round(totalKg).toLocaleString()} kg`;
+      if (statActive) statActive.textContent = `${activeCount} active match${activeCount === 1 ? '' : 'es'}`;
+    }
+  }
+
+  function initProfileForm() {
+    const path = window.location.pathname.split('/').pop() || 'index.html';
+    const isDonor = path === 'profile-donor.html';
+    const isNgo = path === 'profile-ngo.html';
+    if (!isDonor && !isNgo) return;
+
+    const currentUser = JSON.parse(localStorage.getItem('fs360_currentUser'));
+    if (!currentUser) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    const DEFAULT_AVATAR = `data:image/svg+xml;utf8,${encodeURIComponent(
+      `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="100" fill="%23E8F3EC"/>
+        <circle cx="50" cy="40" r="20" fill="%231B6B4A"/>
+        <path d="M20 80C20 63.4315 33.4315 50 50 50C66.5685 50 80 63.4315 80 80" stroke="%231B6B4A" stroke-width="6" stroke-linecap="round"/>
+      </svg>`
+    )}`;
+
+    const DEFAULT_NGO_AVATAR = `data:image/svg+xml;utf8,${encodeURIComponent(
+      `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="100" fill="%23FFE3D1"/>
+        <circle cx="50" cy="40" r="20" fill="%23FF7A33"/>
+        <path d="M20 80C20 63.4315 33.4315 50 50 50C66.5685 50 80 63.4315 80 80" stroke="%23FF7A33" stroke-width="6" stroke-linecap="round"/>
+      </svg>`
+    )}`;
+
+    const avatarImg = $('#profileAvatarImg');
+    const photoInput = $('#profilePhotoInput');
+    const changePhotoBtn = $('#changePhotoBtn');
+    const cardName = $('#profileCardName');
+
+    // Populate Left Card
+    if (avatarImg) {
+      avatarImg.src = currentUser.avatar || (isDonor ? DEFAULT_AVATAR : DEFAULT_NGO_AVATAR);
+    }
+    if (cardName) {
+      cardName.textContent = currentUser.name;
+    }
+    updateProfileStats(currentUser);
+
+    // Populate Form Inputs
+    if (isDonor) {
+      $('#donorFullName').value = currentUser.name || '';
+      $('#donorEmail').value = currentUser.email || '';
+      $('#donorPhone').value = currentUser.phone || '';
+      $('#donorOrgName').value = currentUser.orgName || '';
+      $('#donorAddress').value = currentUser.address || '';
+      $('#donorCity').value = currentUser.city || '';
+      $('#donorState').value = currentUser.state || '';
+      $('#donorPincode').value = currentUser.pincode || '';
+      $('#donorAbout').value = currentUser.about || '';
+    } else {
+      $('#ngoName').value = currentUser.name || '';
+      $('#ngoEmail').value = currentUser.email || '';
+      $('#ngoPhone').value = currentUser.phone || '';
+      $('#ngoRegNum').value = currentUser.regNumber || '';
+      $('#ngoAddress').value = currentUser.address || '';
+      $('#ngoCity').value = currentUser.city || '';
+      $('#ngoState').value = currentUser.state || '';
+      $('#ngoPincode').value = currentUser.pincode || '';
+      $('#ngoAbout').value = currentUser.about || '';
+    }
+
+    // Photo Upload Listeners
+    if (photoInput) {
+      const triggerPhotoInput = (e) => {
+        e.preventDefault();
+        photoInput.click();
+      };
+      changePhotoBtn?.addEventListener('click', triggerPhotoInput);
+      avatarImg?.parentElement?.addEventListener('click', triggerPhotoInput);
+      
+      photoInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          if (!file.type.startsWith('image/')) {
+            showToast('warn', 'Invalid File', 'Please select a valid image file.');
+            return;
+          }
+          try {
+            const compressedBase64 = await compressImage(file);
+            if (avatarImg) avatarImg.src = compressedBase64;
+            showToast('success', 'Photo Loaded', 'Photo loaded successfully. Save changes to keep it.');
+          } catch (err) {
+            console.error('Image compression error:', err);
+            showToast('error', 'Upload Error', 'Failed to compress image.');
+          }
+        }
+      });
+    }
+
+    // Cancel Changes Action
+    const cancelBtn = $('#cancelChangesBtn');
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        if (avatarImg) {
+          avatarImg.src = currentUser.avatar || (isDonor ? DEFAULT_AVATAR : DEFAULT_NGO_AVATAR);
+        }
+        if (photoInput) {
+          photoInput.value = '';
+        }
+        if (isDonor) {
+          $('#donorFullName').value = currentUser.name || '';
+          $('#donorEmail').value = currentUser.email || '';
+          $('#donorPhone').value = currentUser.phone || '';
+          $('#donorOrgName').value = currentUser.orgName || '';
+          $('#donorAddress').value = currentUser.address || '';
+          $('#donorCity').value = currentUser.city || '';
+          $('#donorState').value = currentUser.state || '';
+          $('#donorPincode').value = currentUser.pincode || '';
+          $('#donorAbout').value = currentUser.about || '';
+          clearFieldError($('#donorFullName').closest('.field'));
+          clearFieldError($('#donorEmail').closest('.field'));
+          clearFieldError($('#donorPhone').closest('.field'));
+        } else {
+          $('#ngoName').value = currentUser.name || '';
+          $('#ngoEmail').value = currentUser.email || '';
+          $('#ngoPhone').value = currentUser.phone || '';
+          $('#ngoRegNum').value = currentUser.regNumber || '';
+          $('#ngoAddress').value = currentUser.address || '';
+          $('#ngoCity').value = currentUser.city || '';
+          $('#ngoState').value = currentUser.state || '';
+          $('#ngoPincode').value = currentUser.pincode || '';
+          $('#ngoAbout').value = currentUser.about || '';
+          clearFieldError($('#ngoName').closest('.field'));
+          clearFieldError($('#ngoEmail').closest('.field'));
+          clearFieldError($('#ngoPhone').closest('.field'));
+          clearFieldError($('#ngoRegNum').closest('.field'));
+        }
+        showToast('success', 'Changes Discarded', 'Your profile details have been restored to current settings.');
+      });
+    }
+
+    // Save Changes Action
+    const form = isDonor ? $('#profileDonorForm') : $('#profileNgoForm');
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // 1. Get form values
+        let nameVal, emailVal, phoneVal, regVal = '', orgVal = '', addrVal, cityVal, stateVal, pinVal, aboutVal;
+        if (isDonor) {
+          nameVal = $('#donorFullName').value.trim();
+          emailVal = $('#donorEmail').value.trim().toLowerCase();
+          phoneVal = $('#donorPhone').value.trim();
+          orgVal = $('#donorOrgName').value.trim();
+          addrVal = $('#donorAddress').value.trim();
+          cityVal = $('#donorCity').value.trim();
+          stateVal = $('#donorState').value.trim();
+          pinVal = $('#donorPincode').value.trim();
+          aboutVal = $('#donorAbout').value.trim();
+        } else {
+          nameVal = $('#ngoName').value.trim();
+          emailVal = $('#ngoEmail').value.trim().toLowerCase();
+          phoneVal = $('#ngoPhone').value.trim();
+          regVal = $('#ngoRegNum').value.trim();
+          addrVal = $('#ngoAddress').value.trim();
+          cityVal = $('#ngoCity').value.trim();
+          stateVal = $('#ngoState').value.trim();
+          pinVal = $('#ngoPincode').value.trim();
+          aboutVal = $('#ngoAbout').value.trim();
+        }
+
+        // 2. Validate inputs
+        let valid = true;
+        const nameField = isDonor ? $('#donorFullName').closest('.field') : $('#ngoName').closest('.field');
+        const emailField = isDonor ? $('#donorEmail').closest('.field') : $('#ngoEmail').closest('.field');
+        const phoneField = isDonor ? $('#donorPhone').closest('.field') : $('#ngoPhone').closest('.field');
+
+        if (!nameVal) {
+          setFieldError(nameField, 'Name is required');
+          valid = false;
+        } else {
+          clearFieldError(nameField);
+        }
+
+        if (!emailVal || !isValidEmail(emailVal)) {
+          setFieldError(emailField, 'Please enter a valid email address');
+          valid = false;
+        } else {
+          // Check if email already registered by someone else
+          const users = JSON.parse(localStorage.getItem('fs360_users') || '[]');
+          if (users.some(u => u.email === emailVal && u.email !== currentUser.email)) {
+            setFieldError(emailField, 'Email address is already in use by another account');
+            valid = false;
+          } else {
+            clearFieldError(emailField);
+          }
+        }
+
+        if (!phoneVal || !isValidPhone(phoneVal)) {
+          setFieldError(phoneField, 'Please enter a valid phone number');
+          valid = false;
+        } else {
+          clearFieldError(phoneField);
+        }
+
+        if (!isDonor) {
+          const regField = $('#ngoRegNum').closest('.field');
+          if (!regVal) {
+            setFieldError(regField, 'Registration number is required');
+            valid = false;
+          } else {
+            clearFieldError(regField);
+          }
+        }
+
+        // Optional Pincode Validation
+        const pinField = isDonor ? $('#donorPincode').closest('.field') : $('#ngoPincode').closest('.field');
+        if (pinVal && !/^\d{6}$/.test(pinVal)) {
+          setFieldError(pinField, 'Pincode must be exactly 6 digits');
+          valid = false;
+        } else {
+          clearFieldError(pinField);
+        }
+
+        if (!valid) {
+          showToast('error', 'Validation Error', 'Please check highlighted fields.');
+          return;
+        }
+
+        // 3. Save to localStorage
+        const saveBtn = $('#saveChangesBtn');
+        if (saveBtn) {
+          saveBtn.classList.add('is-loading');
+          saveBtn.disabled = true;
+        }
+
+        setTimeout(() => {
+          const oldEmail = currentUser.email;
+          const oldName = currentUser.name;
+
+          // Update current user values
+          currentUser.name = nameVal;
+          currentUser.email = emailVal;
+          currentUser.phone = phoneVal;
+          currentUser.address = addrVal;
+          currentUser.city = cityVal;
+          currentUser.state = stateVal;
+          currentUser.pincode = pinVal;
+          currentUser.about = aboutVal;
+          if (isDonor) {
+            currentUser.orgName = orgVal;
+          } else {
+            currentUser.regNumber = regVal;
+          }
+
+          // Check if avatar has changed
+          if (avatarImg && avatarImg.src && !avatarImg.src.startsWith('data:image/svg+xml')) {
+            currentUser.avatar = avatarImg.src;
+          }
+
+          // Update fs360_users
+          const users = JSON.parse(localStorage.getItem('fs360_users') || '[]');
+          const userIdx = users.findIndex(u => u.email === oldEmail);
+          if (userIdx !== -1) {
+            // Preserve password and role from existing record
+            const fullUpdatedUser = { ...users[userIdx], ...currentUser };
+            users[userIdx] = fullUpdatedUser;
+          } else {
+            users.push(currentUser);
+          }
+          localStorage.setItem('fs360_users', JSON.stringify(users));
+
+          // Save session user
+          localStorage.setItem('fs360_currentUser', JSON.stringify(currentUser));
+
+          // Synchronize details in fs360_donations database
+          const donations = JSON.parse(localStorage.getItem('fs360_donations') || '[]');
+          let donationUpdated = false;
+          donations.forEach(don => {
+            if (isDonor) {
+              if (don.donorEmail === oldEmail) {
+                don.donorName = nameVal;
+                don.donorEmail = emailVal;
+                don.donorPhone = phoneVal;
+                donationUpdated = true;
+              }
+            } else {
+              if (don.ngoEmail === oldEmail) {
+                don.matchedNgo = nameVal;
+                don.ngoEmail = emailVal;
+                donationUpdated = true;
+              }
+            }
+          });
+          if (donationUpdated) {
+            localStorage.setItem('fs360_donations', JSON.stringify(donations));
+          }
+
+          // UI Refresh
+          if (cardName) {
+            cardName.textContent = currentUser.name;
+          }
+          const navNames = $$('.nav-user-name');
+          navNames.forEach(el => el.textContent = currentUser.name);
+
+          if (saveBtn) {
+            saveBtn.classList.remove('is-loading');
+            saveBtn.disabled = false;
+          }
+
+          showToast('success', 'Changes Saved', 'Your profile details have been successfully updated.');
+        }, 1200);
+      });
+    }
+  }
+
+  /* ---------------------------------------------------------
      Init
      --------------------------------------------------------- */
   document.addEventListener('DOMContentLoaded', () => {
@@ -2099,6 +2459,17 @@
     initAcceptedDonations();
     initDonationDetails();
     initNgoReports();
+    initProfileForm();
+
+    // Cross-tab profile updates
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'fs360_currentUser') {
+        const currentUser = JSON.parse(e.newValue || 'null');
+        if (currentUser) {
+          $$('.nav-user-name').forEach(el => el.textContent = currentUser.name);
+        }
+      }
+    });
   });
 })();
 
