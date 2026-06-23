@@ -1026,7 +1026,13 @@
             <strong>${d.foodItem}</strong><br>
             Quantity: ${d.quantity}<br>
             Expiry: ${d.expiry}<br>
-            Donor: ${d.donorName}<br>
+            Donor: <strong>${d.donorName}</strong><br>
+            Phone: <strong>${d.donorPhone || 'N/A'}</strong><br>
+            Email: <strong>${d.donorEmail}</strong><br>
+            <div style="display:flex; gap:6px; margin-top:8px;">
+              ${d.donorPhone ? `<a href="tel:${d.donorPhone}" class="btn btn-ghost btn-sm" style="flex:1; padding:4px; font-size:0.7rem; text-align:center; border:1px solid var(--line); border-radius:4px; display:inline-block; text-decoration:none;">Call</a>` : ''}
+              <a href="mailto:${d.donorEmail}" class="btn btn-ghost btn-sm" style="flex:1; padding:4px; font-size:0.7rem; text-align:center; border:1px solid var(--line); border-radius:4px; display:inline-block; text-decoration:none;">Email</a>
+            </div>
             <button class="btn btn-primary btn-sm accept-map-btn" data-id="${d.id}" style="margin-top:8px; padding:6px 12px; font-size:0.75rem; width:100%;">Accept Match</button>
           `);
         markers.push(marker);
@@ -1087,9 +1093,15 @@
           .bindPopup(`
             <strong>${d.foodItem}</strong><br>
             Quantity: ${d.quantity}<br>
-            Donor: ${d.donorName}<br>
+            Donor: <strong>${d.donorName}</strong><br>
+            Phone: <strong>${d.donorPhone || 'N/A'}</strong><br>
+            Email: <strong>${d.donorEmail}</strong><br>
             Status: <strong>${d.status}</strong><br>
-            <a href="donation-details.html?id=${d.id}" class="btn btn-ghost btn-sm" style="margin-top:8px; padding:6px 12px; font-size:0.75rem; display:inline-block; width:100%; text-align:center;">View Details</a>
+            <div style="display:flex; gap:6px; margin-top:8px; margin-bottom:4px;">
+              ${d.donorPhone ? `<a href="tel:${d.donorPhone}" class="btn btn-ghost btn-sm" style="flex:1; padding:4px; font-size:0.7rem; text-align:center; border:1px solid var(--line); border-radius:4px; display:inline-block; text-decoration:none;">Call</a>` : ''}
+              <a href="mailto:${d.donorEmail}" class="btn btn-ghost btn-sm" style="flex:1; padding:4px; font-size:0.7rem; text-align:center; border:1px solid var(--line); border-radius:4px; display:inline-block; text-decoration:none;">Email</a>
+            </div>
+            <a href="donation-details.html?id=${d.id}" class="btn btn-ghost btn-sm" style="margin-top:4px; padding:6px 12px; font-size:0.75rem; display:inline-block; width:100%; text-align:center;">View Details</a>
           `);
         markers.push(marker);
       }
@@ -1138,13 +1150,14 @@
     });
   }
 
+  const PEXELS_API_KEY = "pO9cJ0X9tvDogb8z5rFMCVhaQGCzVjfktbtbPWs7g8Wh1jUxWQtST56D";
+
   /* Async helper to fetch first matching food image from Pexels API */
-  async function searchPexels(foodItem, customKey) {
-    const key = customKey || localStorage.getItem('fs360_pexels_key') || '563492ad6f91700001000001e1a539dc2ef34c9c9966b44781df55db';
+  async function searchPexels(foodItem) {
     try {
       const response = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(foodItem)}&per_page=1`, {
         headers: {
-          'Authorization': key
+          'Authorization': PEXELS_API_KEY
         }
       });
       if (response.ok) {
@@ -1165,28 +1178,12 @@
     const form = $('#createDonationForm');
     if (!form) return;
 
-    const autoRadio = $('#photoOptionAuto', form);
-    const uploadRadio = $('#photoOptionUpload', form);
-    const pexelsKeyContainer = $('#pexelsApiKeyContainer', form);
-    const uploadFieldContainer = $('#uploadFieldContainer', form);
     const fileInput = $('#photoUploadInput', form);
     const uploadPlaceholder = $('#uploadPlaceholder', form);
     const previewContainer = $('#uploadPreviewContainer', form);
     const previewImg = $('#uploadPreviewImg', form);
     const fileNameDiv = $('#uploadFileName', form);
     const removeBtn = $('#removePhotoBtn', form);
-
-    // Toggle Photo Options input views
-    if (autoRadio && uploadRadio) {
-      autoRadio.addEventListener('change', () => {
-        if (pexelsKeyContainer) pexelsKeyContainer.style.display = 'block';
-        if (uploadFieldContainer) uploadFieldContainer.style.display = 'none';
-      });
-      uploadRadio.addEventListener('change', () => {
-        if (pexelsKeyContainer) pexelsKeyContainer.style.display = 'none';
-        if (uploadFieldContainer) uploadFieldContainer.style.display = 'block';
-      });
-    }
 
     // Handle file input changes and drag-over / drop
     if (fileInput) {
@@ -1255,11 +1252,11 @@
       e.preventDefault();
       
       const foodItem = $('#foodItem', form).value.trim();
-      const quantity = $('#quantity', form).value.trim();
-      const expiry = $('#expiry', form).value.trim();
+      const quantityVal = $('#quantity', form).value.trim();
+      const expiryVal = $('#expiry', form).value.trim();
       const pickupNotes = $('#pickupNotes', form).value.trim();
       
-      if (!foodItem || !quantity || !expiry) {
+      if (!foodItem || !quantityVal || !expiryVal) {
         showToast('error', 'Incomplete Form', 'Please fill in all required fields.');
         return;
       }
@@ -1270,23 +1267,18 @@
 
       try {
         let photoUrl = '';
-        const photoOption = form.querySelector('input[name="photoOption"]:checked').value;
-
-        if (photoOption === 'upload') {
-          if (previewImg && previewImg.src && !previewImg.src.startsWith(window.location.origin) && previewImg.src !== '') {
-            photoUrl = previewImg.src;
-          } else {
-            photoUrl = getFoodPhoto(foodItem); // fallback if no photo was uploaded
-          }
+        // If user uploaded a photo, use the Base64 representation
+        if (previewImg && previewImg.src && !previewImg.src.startsWith(window.location.origin) && previewImg.src !== '') {
+          photoUrl = previewImg.src;
         } else {
-          // Option B: Auto Fetch from Pexels API
-          const customKey = $('#pexelsApiKey') ? $('#pexelsApiKey').value.trim() : '';
-          if (customKey) {
-            localStorage.setItem('fs360_pexels_key', customKey); // Save API key for future listings
-          }
-          photoUrl = await searchPexels(foodItem, customKey);
+          // Otherwise, fetch from Pexels API in background
+          photoUrl = await searchPexels(foodItem);
         }
-        
+
+        // Format Expiry Date beautifully
+        const expiryDate = new Date(expiryVal);
+        const formattedExpiry = 'Pickup Before: ' + expiryDate.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
         const currentUser = JSON.parse(localStorage.getItem('fs360_currentUser'));
         const donations = JSON.parse(localStorage.getItem('fs360_donations') || '[]');
         
@@ -1296,8 +1288,8 @@
         const newDonation = {
           id: 'don_' + Date.now(),
           foodItem,
-          quantity,
-          expiry,
+          quantity: quantityVal + ' Servings',
+          expiry: formattedExpiry,
           pickupNotes,
           donorName: currentUser.name,
           donorEmail: currentUser.email,
@@ -1443,9 +1435,19 @@
             <h4>${d.foodItem}</h4>
             <p class="don-qty">Quantity: <strong>${d.quantity}</strong></p>
             <p class="don-exp">Expiry: <strong>${d.expiry}</strong></p>
-            <p class="don-donor">Listed by: <strong>${d.donorName}</strong></p>
-            <div class="don-card-actions">
-              <button class="btn btn-primary accept-don-btn" data-id="${d.id}">Accept Match</button>
+            
+            <div class="contact-details" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 0.82rem;">
+              <div style="margin-bottom: 4px; color: var(--ink);">Donor: <strong>${d.donorName}</strong></div>
+              <div style="margin-bottom: 4px; color: var(--ink-soft);">Phone: <strong>${d.donorPhone || 'N/A'}</strong></div>
+              <div style="margin-bottom: 8px; color: var(--ink-soft);">Email: <strong>${d.donorEmail}</strong></div>
+              <div style="display: flex; gap: 8px; margin-top: 8px; margin-bottom: 4px;">
+                ${d.donorPhone ? `<a href="tel:${d.donorPhone}" class="btn btn-ghost btn-sm" style="flex: 1; padding: 6px; font-size: 0.75rem; text-align: center; border: 1px solid var(--line); border-radius: 6px; display: flex; align-items: center; justify-content: center; background: transparent; cursor: pointer; text-decoration: none;">Call Donor</a>` : ''}
+                <a href="mailto:${d.donorEmail}" class="btn btn-ghost btn-sm" style="flex: 1; padding: 6px; font-size: 0.75rem; text-align: center; border: 1px solid var(--line); border-radius: 6px; display: flex; align-items: center; justify-content: center; background: transparent; cursor: pointer; text-decoration: none;">Email Donor</a>
+              </div>
+            </div>
+
+            <div class="don-card-actions" style="margin-top: 12px; padding-top: 0;">
+              <button class="btn btn-primary accept-don-btn" data-id="${d.id}" style="width: 100%;">Accept Match</button>
             </div>
           </div>
         </div>`;
@@ -1542,7 +1544,7 @@
           <tr>
             <th>Food Item</th>
             <th>Quantity</th>
-            <th>Donor Name</th>
+            <th>Donor Contact Details</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
@@ -1562,7 +1564,17 @@
             </div>
           </td>
           <td>${d.quantity}</td>
-          <td>${d.donorName}</td>
+          <td>
+            <div style="font-size: 0.85rem; line-height: 1.4; color: var(--ink);">
+              <div><strong>${d.donorName}</strong></div>
+              <div style="color: var(--ink-soft);">${d.donorEmail}</div>
+              <div style="color: var(--ink-soft);">${d.donorPhone || 'N/A'}</div>
+              <div style="display: flex; gap: 8px; margin-top: 6px;">
+                ${d.donorPhone ? `<a href="tel:${d.donorPhone}" class="btn btn-ghost btn-xs" style="padding: 2px 6px; font-size: 0.7rem; border: 1px solid var(--line); border-radius: 4px; display: inline-block; text-decoration: none;">Call</a>` : ''}
+                <a href="mailto:${d.donorEmail}" class="btn btn-ghost btn-xs" style="padding: 2px 6px; font-size: 0.7rem; border: 1px solid var(--line); border-radius: 4px; display: inline-block; text-decoration: none;">Email</a>
+              </div>
+            </div>
+          </td>
           <td><span class="status-badge ${statusClass}">${d.status}</span></td>
           <td><a href="donation-details.html?id=${d.id}" class="btn btn-ghost btn-sm">View Details</a></td>
         </tr>`;
@@ -1623,6 +1635,10 @@
             <p>Organization/Name: <strong>${don.donorName}</strong></p>
             <p>Email: <strong>${don.donorEmail}</strong></p>
             <p>Contact Phone: <strong>${don.donorPhone || 'N/A'}</strong></p>
+            <div style="display: flex; gap: 12px; margin-top: 14px;">
+              ${don.donorPhone ? `<a href="tel:${don.donorPhone}" class="btn btn-ghost btn-sm" style="padding: 8px 16px; border: 1px solid var(--line); border-radius: 8px; font-weight: 600; display: inline-block; text-decoration: none;">Call Donor</a>` : ''}
+              <a href="mailto:${don.donorEmail}" class="btn btn-ghost btn-sm" style="padding: 8px 16px; border: 1px solid var(--line); border-radius: 8px; font-weight: 600; display: inline-block; text-decoration: none;">Email Donor</a>
+            </div>
           </div>
           ${don.matchedNgo ? `
           <div class="details-section">
