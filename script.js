@@ -110,8 +110,10 @@
       ];
       donorLinks.forEach(link => {
         if (!isLanding) {
-          const isActive = path === link.href ? 'class="active"' : '';
-          linksHtml += `<a href="${link.href}" ${isActive} data-transition>${link.text}</a>`;
+          if (link.text !== 'Profile') {
+            const isActive = path === link.href ? 'class="active"' : '';
+            linksHtml += `<a href="${link.href}" ${isActive} data-transition>${link.text}</a>`;
+          }
         }
         
         // Mobile grid items (short labels)
@@ -168,9 +170,6 @@
 
         <!-- Right actions: Notification Bell + Avatar Dropdown -->
         <div class="nav-actions">
-          <!-- Desktop Logout Button beside avatar -->
-          ${isDonor ? '<button class="btn btn-ghost logout-btn desktop-logout-btn">Log Out</button>' : ''}
-
           <!-- Notification Bell Icon (Beside Profile Image) -->
           <div class="notif-bell-container">
             <button class="notif-bell-btn" id="notifBellBtn" aria-label="Notifications">
