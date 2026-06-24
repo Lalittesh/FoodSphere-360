@@ -2604,3 +2604,48 @@ body.auth-body.dark .theme-toggle .icon-sun{ display:block; }
     height: auto;
   }
 }
+
+/* NGO Available Donations layout specifics */
+.ngo-available-layout {
+  grid-template-columns: 0.35fr 0.65fr;
+}
+
+.ngo-available-layout .column-left {
+  position: sticky;
+  top: 106px;
+  height: calc(100vh - 160px);
+  min-height: 480px;
+  z-index: 10;
+}
+
+.ngo-available-layout .column-right {
+  position: static;
+  height: auto;
+  min-height: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ngo-available-layout .donations-grid {
+  grid-template-columns: 1fr; /* Force 1 card per row inside the split view for readability */
+}
+
+@media (max-width: 980px) {
+  .ngo-available-layout {
+    grid-template-columns: 1fr;
+  }
+  .ngo-available-layout .column-left {
+    position: static;
+    height: 350px;
+    min-height: auto;
+    margin-bottom: 20px;
+  }
+  .ngo-available-layout .column-right {
+    position: static;
+    height: auto;
+  }
+  .ngo-available-layout .donations-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Restore grid columns when stacked */
+  }
+}
