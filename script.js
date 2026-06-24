@@ -1419,6 +1419,7 @@
       const sampleDonations = [
         {
           id: 'don_1',
+          createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
           foodItem: 'Vegetable Biryani',
           quantity: '50 Meals',
           expiry: 'Pickup Before: 7:00 PM',
@@ -1434,6 +1435,7 @@
         },
         {
           id: 'don_2',
+          createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
           foodItem: 'South Indian Meals',
           quantity: '30 Meals',
           expiry: 'Pickup Before: 8:00 PM',
@@ -1449,6 +1451,7 @@
         },
         {
           id: 'don_3',
+          createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
           foodItem: 'Idly & Sambar',
           quantity: '40 Servings',
           expiry: 'Pickup Before: 10:00 AM',
@@ -1464,6 +1467,7 @@
         },
         {
           id: 'don_4',
+          createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
           foodItem: 'Lemon Rice',
           quantity: '25 Packs',
           expiry: 'Pickup Before: 6:00 PM',
@@ -1479,6 +1483,7 @@
         },
         {
           id: 'don_5',
+          createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
           foodItem: 'Curd Rice',
           quantity: '20 Packs',
           expiry: 'Pickup Before: 5:00 PM',
@@ -1494,6 +1499,7 @@
         },
         {
           id: 'don_6',
+          createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
           foodItem: 'Tomato Rice',
           quantity: '15 Packs',
           expiry: 'Pickup Before: 7:00 PM',
@@ -1509,6 +1515,7 @@
         },
         {
           id: 'don_7',
+          createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
           foodItem: 'Chapati Meals',
           quantity: '35 Meals',
           expiry: 'Pickup Before: 9:00 PM',
@@ -1524,6 +1531,7 @@
         },
         {
           id: 'don_8',
+          createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
           foodItem: 'Meals Parcel',
           quantity: '60 Packs',
           expiry: 'Pickup Before: 8:30 PM',
@@ -1680,49 +1688,7 @@
     }
   }
 
-  function initAcceptedPickupsMap(acceptedDons) {
-    const mapEl = $('#map');
-    if (!mapEl || !window.L) return;
 
-    if (window.acceptedMap) {
-      window.acceptedMap.remove();
-    }
-
-    const map = L.map('map').setView([9.9252, 78.1198], 13);
-    window.acceptedMap = map;
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    const markers = [];
-    acceptedDons.forEach(d => {
-      if (d.latitude && d.longitude) {
-        const isDelivered = d.status === 'Delivered';
-        const marker = L.marker([d.latitude, d.longitude], { icon: createCustomIcon(isDelivered) })
-          .addTo(map)
-          .bindPopup(`
-            <strong>${d.foodItem}</strong><br>
-            Quantity: ${d.quantity}<br>
-            Donor: <strong>${d.donorName}</strong><br>
-            Phone: <strong>${d.donorPhone || 'N/A'}</strong><br>
-            Email: <strong>${d.donorEmail}</strong><br>
-            Status: <strong>${d.status}</strong><br>
-            <div style="display:flex; gap:6px; margin-top:8px; margin-bottom:4px;">
-              ${d.donorPhone ? `<a href="tel:${d.donorPhone}" class="btn btn-ghost btn-sm" style="flex:1; padding:4px; font-size:0.7rem; text-align:center; border:1px solid var(--line); border-radius:4px; display:inline-block; text-decoration:none;">Call</a>` : ''}
-              <a href="mailto:${d.donorEmail}" class="btn btn-ghost btn-sm" style="flex:1; padding:4px; font-size:0.7rem; text-align:center; border:1px solid var(--line); border-radius:4px; display:inline-block; text-decoration:none;">Email</a>
-            </div>
-            <a href="donation-details.html?id=${d.id}" class="btn btn-ghost btn-sm" style="margin-top:4px; padding:6px 12px; font-size:0.75rem; display:inline-block; width:100%; text-align:center;">View Details</a>
-          `);
-        markers.push(marker);
-      }
-    });
-
-    if (markers.length > 0) {
-      const group = new L.featureGroup(markers);
-      map.fitBounds(group.getBounds().pad(0.1));
-    }
-  }
 
   /* Helper to compress uploaded image via Canvas to fit localStorage limit (<30kb) */
   function compressImage(file) {
@@ -1898,6 +1864,7 @@
 
         const newDonation = {
           id: 'don_' + Date.now(),
+          createdAt: new Date().toISOString(),
           foodItem,
           quantity: quantityVal + ' Servings',
           expiry: formattedExpiry,
@@ -1930,13 +1897,35 @@
     });
   }
 
+  function sortDonationsNewestFirst(dons) {
+    return dons.sort((a, b) => {
+      const dateA = a.createdAt || a.acceptedAt;
+      const dateB = b.createdAt || b.acceptedAt;
+      if (dateA && dateB) {
+        return new Date(dateB).getTime() - new Date(dateA).getTime();
+      }
+      if (dateA) return -1;
+      if (dateB) return 1;
+      
+      const parseIdNum = (id) => {
+        const parts = (id || '').split('_');
+        if (parts.length > 1) {
+          const val = parseInt(parts[1], 10);
+          return isNaN(val) ? 0 : val;
+        }
+        return 0;
+      };
+      return parseIdNum(b.id) - parseIdNum(a.id);
+    });
+  }
+
   function initMyDonations() {
     const container = $('#myDonationsList');
     if (!container) return;
 
     const currentUser = JSON.parse(localStorage.getItem('fs360_currentUser'));
     const donations = JSON.parse(localStorage.getItem('fs360_donations') || '[]');
-    const myDons = donations.filter(d => d.donorEmail === currentUser.email);
+    const myDons = sortDonationsNewestFirst(donations.filter(d => d.donorEmail === currentUser.email));
 
     // Compute dynamic dashboard stats if on Donor Dashboard
     const statsFoodContributedEl = $('#statsFoodContributed');
@@ -1992,7 +1981,7 @@
         </thead>
         <tbody>`;
         
-    myDons.reverse().forEach(d => {
+    myDons.forEach(d => {
       let statusClass = 'status-pending';
       if (d.status === 'Accepted') statusClass = 'status-accepted';
       if (d.status === 'Delivered') statusClass = 'status-delivered';
@@ -2021,7 +2010,7 @@
     if (!container) return;
 
     const donations = JSON.parse(localStorage.getItem('fs360_donations') || '[]');
-    const pendingDons = donations.filter(d => d.status === 'Pending');
+    const pendingDons = sortDonationsNewestFirst(donations.filter(d => d.status === 'Pending'));
     
     // Also initialize Leaflet Map for available donations
     initAvailableDonationsMap(pendingDons);
@@ -2099,7 +2088,7 @@
     const currentUser = JSON.parse(localStorage.getItem('fs360_currentUser'));
     if (!currentUser) return;
     const donations = JSON.parse(localStorage.getItem('fs360_donations') || '[]');
-    const acceptedDons = donations.filter(d => d.ngoEmail === currentUser.email);
+    const acceptedDons = sortDonationsNewestFirst(donations.filter(d => d.ngoEmail === currentUser.email));
 
     // Compute dynamic dashboard stats if on NGO Dashboard page
     const statsPeopleServedEl = $('#statsPeopleServed');
@@ -2144,9 +2133,6 @@
 
     if (!container) return;
 
-    // Also initialize Leaflet Map on accepted-donations.html for active pickups routing
-    initAcceptedPickupsMap(acceptedDons);
-
     if (acceptedDons.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
@@ -2169,7 +2155,7 @@
         </thead>
         <tbody>`;
         
-    acceptedDons.reverse().forEach(d => {
+    acceptedDons.forEach(d => {
       let statusClass = 'status-accepted';
       if (d.status === 'Delivered') statusClass = 'status-delivered';
       
@@ -2295,7 +2281,7 @@
 
     const currentUser = JSON.parse(localStorage.getItem('fs360_currentUser'));
     const donations = JSON.parse(localStorage.getItem('fs360_donations') || '[]');
-    const acceptedDons = donations.filter(d => d.ngoEmail === currentUser.email);
+    const acceptedDons = sortDonationsNewestFirst(donations.filter(d => d.ngoEmail === currentUser.email));
 
     // Tab buttons
     const tabBtnDonation = $('#tabBtnDonation');
@@ -2375,7 +2361,7 @@
           </thead>
           <tbody>`;
 
-      acceptedDons.reverse().forEach(d => {
+      acceptedDons.forEach(d => {
         const acceptDate = d.acceptedAt ? new Date(d.acceptedAt).toLocaleDateString() + ' ' + new Date(d.acceptedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
         const deliveryDate = d.deliveredAt ? new Date(d.deliveredAt).toLocaleDateString() + ' ' + new Date(d.deliveredAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A';
         let statusClass = 'status-accepted';
@@ -2625,7 +2611,7 @@
           </thead>
           <tbody>`;
 
-      filtered.reverse().forEach(d => {
+      filtered.forEach(d => {
         const transDate = d.deliveredAt ? new Date(d.deliveredAt).toLocaleDateString() : (d.acceptedAt ? new Date(d.acceptedAt).toLocaleDateString() : 'N/A');
         let statusClass = 'status-accepted';
         if (d.status === 'Delivered') statusClass = 'status-delivered';
@@ -3198,13 +3184,13 @@
         })
         .addTo(map)
         .bindPopup(`
-          <div style="font-family:var(--body); line-height:1.4;">
-            <span style="font-size:0.7rem; font-weight:700; color:#fff; background:#E0463A; padding:2px 6px; border-radius:4px; text-transform:uppercase;">${req.urgency}</span>
-            <div style="margin-top:6px; font-weight:700; font-size:0.9rem; color:var(--ink);">${req.ngoName}</div>
-            <div style="font-size:0.8rem; color:var(--ink-soft); margin-top:2px;">Needs: <strong>${req.itemsNeeded}</strong></div>
-            <div style="font-size:0.8rem; color:var(--ink-soft);">Location: ${req.location}</div>
-            <div style="font-size:0.8rem; color:var(--ink-soft);">Phone: <strong>${req.phone}</strong></div>
-            <button class="btn btn-accent btn-sm claim-emerg-btn" data-id="${req.id}" style="margin-top:8px; padding:5px 10px; font-size:0.75rem; width:100%;">Fulfill Request</button>
+          <div style="font-family:var(--body); line-height:1.4; padding: 2px;">
+            <div style="font-weight: 800; font-size: 1rem; color: #E0463A; margin-bottom: 4px;">🚨 Urgent Food Needed</div>
+            <div style="font-weight: 700; font-size: 0.9rem; color: var(--ink); margin-bottom: 2px;">${req.ngoName}</div>
+            <div style="font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 2px;"><strong>${req.itemsNeeded}</strong> Required</div>
+            <div style="font-size: 0.8rem; font-weight: 600; color: #E0463A; background: #FEE2E2; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 4px;">${req.urgency} Priority</div>
+            <div style="font-size: 0.75rem; color: var(--ink-soft); margin-top: 6px;">Location: ${req.location}</div>
+            <button class="btn btn-accent btn-sm claim-emerg-btn" data-id="${req.id}" style="margin-top:10px; padding:5px 10px; font-size:0.75rem; width:100%;">Fulfill Request</button>
           </div>
         `);
         markers.push(marker);

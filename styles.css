@@ -2566,3 +2566,41 @@ body.auth-body.dark .theme-toggle .icon-sun{ display:block; }
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Restore grid columns when stacked */
   }
 }
+
+/* Emergency Requests layout specifics */
+.emergency-layout {
+  grid-template-columns: 0.35fr 0.65fr;
+}
+
+.emergency-layout .column-left {
+  position: sticky;
+  top: 106px;
+  height: calc(100vh - 160px);
+  min-height: 480px;
+  z-index: 10;
+}
+
+.emergency-layout .column-right {
+  position: static;
+  height: auto;
+  min-height: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (max-width: 980px) {
+  .emergency-layout {
+    grid-template-columns: 1fr;
+  }
+  .emergency-layout .column-left {
+    position: static;
+    height: 350px;
+    min-height: auto;
+    margin-bottom: 20px;
+  }
+  .emergency-layout .column-right {
+    position: static;
+    height: auto;
+  }
+}

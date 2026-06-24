@@ -41,64 +41,69 @@
       </div>
     </div>
 
-    <!-- MAP OVERVIEW -->
-    <div class="dashboard-card" style="margin-bottom: 30px;">
-      <h3>Emergency Relief Hotspots Map</h3>
-      <p style="color: var(--ink-soft); font-size: 0.88rem; margin-top: 4px; margin-bottom: 16px;">Map pins indicate high-priority regions in need of immediate food rescue supply runs.</p>
-      <div id="map" style="height: 350px; border-radius: var(--radius-sm); border: 1px solid var(--line); z-index: 10;"></div>
-    </div>
-
-    <!-- GRID LAYOUT -->
-    <div class="dashboard-grid">
+    <!-- TWO-COLUMN LAYOUT -->
+    <div class="two-column-layout emergency-layout">
       
-      <!-- LEFT FIELD: Submit Request (NGO only, managed by JS) -->
-      <section class="dashboard-card" id="emergencySubmitCard" style="display: none; height: fit-content; margin-bottom: 24px;">
-        <h3 style="margin-top: 0; border-bottom: none; padding-bottom: 0;">Broadcast Emergency Request</h3>
-        <p style="color: var(--ink-soft); font-size: 0.85rem; margin-top: 4px; margin-bottom: 20px;">Instantly notify all local food donors on our platform about your urgent food shortage.</p>
-        
-        <form id="emergencyRequestForm" novalidate>
-          <div class="field">
-            <label for="emergencyItems">Food Items / Quantity Required</label>
-            <div class="input-shell">
-              <input type="text" id="emergencyItems" placeholder="e.g. 100 Packs of Cooked Lunch, Rice" required>
-            </div>
+      <!-- LEFT SIDE (35%): MAP -->
+      <div class="column-left">
+        <div class="map-sticky-wrapper">
+          <div class="dashboard-card" style="margin-bottom: 0; height: 100%; display: flex; flex-direction: column; box-sizing: border-box; padding: 20px;">
+            <h3>Emergency Relief Hotspots Map</h3>
+            <p style="color: var(--ink-soft); font-size: 0.82rem; margin-top: 4px; margin-bottom: 12px;">Map pins indicate high-priority regions in need of immediate food rescue supply runs.</p>
+            <div id="map" style="flex: 1; min-height: 400px; border-radius: var(--radius-sm); border: 1px solid var(--line); z-index: 10;"></div>
           </div>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDE (65%): CONTENT -->
+      <div class="column-right">
+        <!-- Broadcast Form (NGO only) -->
+        <section class="dashboard-card" id="emergencySubmitCard" style="display: none; height: fit-content; margin-bottom: 24px; padding: 20px;">
+          <h3 style="margin-top: 0; border-bottom: none; padding-bottom: 0;">Broadcast Emergency Request</h3>
+          <p style="color: var(--ink-soft); font-size: 0.85rem; margin-top: 4px; margin-bottom: 20px;">Instantly notify all local food donors on our platform about your urgent food shortage.</p>
           
-          <div class="field">
-            <label for="emergencyLocation">Delivery / Distribution Location</label>
-            <div class="input-shell">
-              <input type="text" id="emergencyLocation" placeholder="e.g. Sellur Relief Camp Ward 4" required>
+          <form id="emergencyRequestForm" novalidate>
+            <div class="field">
+              <label for="emergencyItems">Food Items / Quantity Required</label>
+              <div class="input-shell">
+                <input type="text" id="emergencyItems" placeholder="e.g. 100 Packs of Cooked Lunch, Rice" required>
+              </div>
             </div>
-          </div>
-
-          <div class="field">
-            <label for="emergencyUrgency">Urgency Priority Level</label>
-            <div class="input-shell" style="padding: 2px 14px;">
-              <select id="emergencyUrgency" style="width: 100%; border: none; background: transparent; padding: 12px 0; outline: none; font-size: 0.93rem; font-family: inherit; color: var(--ink); cursor: pointer;">
-                <option value="Medium">Medium Priority</option>
-                <option value="High">High Priority</option>
-                <option value="Urgent">Urgent Priority (Disaster/Floods)</option>
-              </select>
+            
+            <div class="field">
+              <label for="emergencyLocation">Delivery / Distribution Location</label>
+              <div class="input-shell">
+                <input type="text" id="emergencyLocation" placeholder="e.g. Sellur Relief Camp Ward 4" required>
+              </div>
             </div>
-          </div>
 
-          <button type="submit" class="btn btn-accent btn-block" style="margin-top: 24px;">Broadcast Request</button>
-        </form>
-      </section>
+            <div class="field">
+              <label for="emergencyUrgency">Urgency Priority Level</label>
+              <div class="input-shell" style="padding: 2px 14px;">
+                <select id="emergencyUrgency" style="width: 100%; border: none; background: transparent; padding: 12px 0; outline: none; font-size: 0.93rem; font-family: inherit; color: var(--ink); cursor: pointer;">
+                  <option value="Medium">Medium Priority</option>
+                  <option value="High">High Priority</option>
+                  <option value="Urgent">Urgent Priority (Disaster/Floods)</option>
+                </select>
+              </div>
+            </div>
 
-      <!-- RIGHT FIELD: List of Active Requests -->
-      <section style="grid-column: span 2; width: 100%;" id="requestsWrapper">
-        <div class="dashboard-card" style="margin-bottom: 0;">
+            <button type="submit" class="btn btn-accent btn-block" style="margin-top: 24px;">Broadcast Request</button>
+          </form>
+        </section>
+
+        <!-- Active Requests List -->
+        <section class="dashboard-card" id="requestsWrapper" style="margin-bottom: 0; padding: 20px;">
           <h3 style="margin-top: 0;">Active Emergency Broadcasts</h3>
-          <p style="color: var(--ink-soft); font-size: 0.88rem; margin-top: 4px; margin-bottom: 20px;">Review broadcasts below. Click Fulfill to coordinates supply drops directly.</p>
+          <p style="color: var(--ink-soft); font-size: 0.88rem; margin-top: 4px; margin-bottom: 20px;">Review broadcasts below. Click Fulfill to coordinate supply drops directly.</p>
           
           <div id="activeEmergencyRequestsList">
             <div class="empty-state">
               <p>Gathering active emergency signals...</p>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
     </div>
 
@@ -128,17 +133,11 @@
       backBtn.href = user.role === 'donor' ? 'donor-dashboard.html' : 'ngo-dashboard.html';
     }
 
-    // Dynamic submit form card alignment
+    // Show Broadcast form for NGOs
     const user = JSON.parse(localStorage.getItem('fs360_currentUser') || '{}');
-    const wrapper = document.getElementById('requestsWrapper');
-    if (user.role === 'donor') {
-      // Donors just claim, make active request list take full grid width
-      if (wrapper) wrapper.style.gridColumn = 'span 2';
-    } else if (user.role === 'ngo') {
-      // NGOs see form on left, active list on right
-      if (wrapper) wrapper.style.gridColumn = 'span 1';
-      const grid = document.querySelector('.dashboard-grid');
-      if (grid) grid.style.gridTemplateColumns = '1.1fr 1.9fr';
+    const formCard = document.getElementById('emergencySubmitCard');
+    if (user.role === 'ngo' && formCard) {
+      formCard.style.display = 'block';
     }
   });
 </script>
