@@ -1989,16 +1989,18 @@ body.auth-body.dark .theme-toggle .icon-sun{ display:block; }
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 2px solid var(--white);
-  box-shadow: 0 2px 8px rgba(22, 36, 29, 0.12);
+  border: 1px solid var(--line);
+  box-shadow: 0 2px 8px rgba(22, 36, 29, 0.08);
   object-fit: cover;
   transition: all 0.25s var(--ease);
   display: block;
+  box-sizing: border-box;
 }
 
 .profile-trigger-btn:hover .nav-profile-avatar {
   border-color: var(--green);
-  transform: scale(1.05);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(27, 107, 74, 0.15);
 }
 
 /* Profile Dropdown Menu Card */
@@ -2101,9 +2103,11 @@ body.auth-body.dark .theme-toggle .icon-sun{ display:block; }
 }
 
 .notif-bell-btn {
-  background: none;
-  border: none;
-  padding: 8px;
+  width: 40px;
+  height: 40px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  padding: 0;
   cursor: pointer;
   border-radius: 50%;
   display: flex;
@@ -2112,16 +2116,21 @@ body.auth-body.dark .theme-toggle .icon-sun{ display:block; }
   outline: none;
   color: var(--ink-soft);
   transition: all 0.25s var(--ease);
+  box-shadow: 0 2px 8px rgba(22, 36, 29, 0.04);
+  box-sizing: border-box;
 }
 
 .notif-bell-btn:hover {
   background: var(--sage);
   color: var(--green);
+  border-color: var(--green);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(27, 107, 74, 0.12);
 }
 
 .notif-bell-btn svg {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
 }
 
 /* Unread Badge */
@@ -2504,6 +2513,56 @@ body.auth-body.dark .theme-toggle .icon-sun{ display:block; }
   }
 }
 
+/* NGO Dashboard Two-Column Layout */
+.two-column-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 28px;
+  align-items: start;
+}
 
+.column-left {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
 
+.column-right {
+  position: sticky;
+  top: 106px; /* Sticky offset to account for navbar */
+  height: calc(100vh - 160px);
+  min-height: 480px;
+  z-index: 10;
+}
 
+.map-sticky-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+.map-sticky-wrapper #map {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-sm);
+}
+
+.two-column-layout .donations-grid {
+  grid-template-columns: 1fr; /* Force 1 card per row inside the split view for readability */
+}
+
+@media (max-width: 980px) {
+  .two-column-layout {
+    grid-template-columns: 1fr;
+  }
+  .column-right {
+    position: static;
+    height: 380px;
+    min-height: auto;
+    margin-top: 10px;
+  }
+  .two-column-layout .donations-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Restore grid columns when stacked */
+  }
+}

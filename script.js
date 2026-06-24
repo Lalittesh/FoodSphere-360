@@ -124,23 +124,21 @@
     } else {
       const ngoLinks = [
         { href: 'ngo-dashboard.html', text: 'Dashboard' },
-        { href: 'available-donations.html', text: 'Available Donations' },
         { href: 'accepted-donations.html', text: 'Accepted Pickups' },
-        { href: 'ngo-reports.html', text: 'Reporting Center' },
         { href: 'emergency-requests.html', text: 'Emergency Requests' },
         { href: 'profile-ngo.html', text: 'Profile' }
       ];
       ngoLinks.forEach(link => {
         if (!isLanding) {
-          const isActive = path === link.href ? 'class="active"' : '';
-          linksHtml += `<a href="${link.href}" ${isActive} data-transition>${link.text}</a>`;
+          if (link.text !== 'Profile') {
+            const isActive = path === link.href ? 'class="active"' : '';
+            linksHtml += `<a href="${link.href}" ${isActive} data-transition>${link.text}</a>`;
+          }
         }
         
         // Mobile grid items (short labels)
         let label = link.text;
-        if (label === 'Available Donations') label = 'Available';
         if (label === 'Accepted Pickups') label = 'Accepted';
-        if (label === 'Reporting Center') label = 'Reports';
         if (label === 'Emergency Requests') label = 'Emergency';
         const mobileActive = path === link.href ? 'active' : '';
         mobileLinksHtml += `<a href="${link.href}" class="mobile-nav-item ${mobileActive}" data-transition>${label}</a>`;
@@ -171,7 +169,7 @@
         <!-- Right actions: Notification Bell + Avatar Dropdown -->
         <div class="nav-actions">
           <!-- Desktop Logout Button beside avatar -->
-          <button class="btn btn-ghost logout-btn desktop-logout-btn">Log Out</button>
+          ${isDonor ? '<button class="btn btn-ghost logout-btn desktop-logout-btn">Log Out</button>' : ''}
 
           <!-- Notification Bell Icon (Beside Profile Image) -->
           <div class="notif-bell-container">
@@ -1181,7 +1179,7 @@
 
     // Page route categorization
     const donorPages = ['donor-dashboard.html', 'create-donation.html', 'my-donations.html', 'profile-donor.html'];
-    const ngoPages = ['ngo-dashboard.html', 'available-donations.html', 'accepted-donations.html', 'donation-details.html', 'ngo-reports.html', 'profile-ngo.html'];
+    const ngoPages = ['ngo-dashboard.html', 'accepted-donations.html', 'donation-details.html', 'ngo-reports.html', 'profile-ngo.html'];
 
     // If logged in, prevent accessing login and register pages, auto-redirect to dashboards
     if (currentUser && (path === 'login.html' || path === 'register.html')) {
@@ -1281,9 +1279,7 @@
         } else {
           mobileLinksHtml = `
             <a href="ngo-dashboard.html" class="mobile-nav-item">Dashboard</a>
-            <a href="available-donations.html" class="mobile-nav-item">Available</a>
             <a href="accepted-donations.html" class="mobile-nav-item">Accepted</a>
-            <a href="ngo-reports.html" class="mobile-nav-item">Reports</a>
             <a href="emergency-requests.html" class="mobile-nav-item">Emergency</a>
             <a href="${profilePage}" class="mobile-nav-item">Profile</a>
           `;
@@ -1596,6 +1592,24 @@
     }).addTo(map);
 
     const markers = [];
+    const currentUser = JSON.parse(localStorage.getItem('fs360_currentUser') || 'null');
+
+    // 1. Add current NGO marker (green)
+    if (currentUser) {
+      const NGO_COORDS = {
+        'Food Relief Foundation': [9.9285, 78.1250],
+        'Community Kitchen Madurai': [9.9320, 78.1090],
+        'Helping Hands NGO': [9.9220, 78.1310],
+        'Annai Food Support Trust': [9.9180, 78.1110]
+      };
+      const ngoCoords = NGO_COORDS[currentUser.name] || [9.9252, 78.1198];
+      const ngoMarker = L.marker(ngoCoords, { icon: createCustomIcon(true) })
+        .addTo(map)
+        .bindPopup(`<strong>${currentUser.name} (You)</strong><br>NGO Workspace Location`);
+      markers.push(ngoMarker);
+    }
+
+    // 2. Add available (pending) donation markers (orange)
     pendingDons.forEach(d => {
       if (d.latitude && d.longitude) {
         const marker = L.marker([d.latitude, d.longitude], { icon: createCustomIcon(false) })
@@ -1617,12 +1631,32 @@
       }
     });
 
+    // 3. Add active pickup locations for this NGO (green markers)
+    if (currentUser) {
+      const allDons = JSON.parse(localStorage.getItem('fs360_donations') || '[]');
+      const activePickups = allDons.filter(d => d.matchedNgo === currentUser.name && d.status === 'Accepted');
+      activePickups.forEach(d => {
+        if (d.latitude && d.longitude) {
+          const marker = L.marker([d.latitude, d.longitude], { icon: createCustomIcon(true) })
+            .addTo(map)
+            .bindPopup(`
+              <strong>Active Pickup: ${d.foodItem}</strong><br>
+              Quantity: ${d.quantity}<br>
+              Donor: <strong>${d.donorName}</strong><br>
+              Phone: <strong>${d.donorPhone || 'N/A'}</strong><br>
+              Status: <span class="status-badge status-accepted">${d.status}</span><br>
+              <a href="donation-details.html?id=${d.id}" class="btn btn-ghost btn-sm" style="margin-top:8px; padding:6px 12px; font-size:0.75rem; display:inline-block; width:100%; text-align:center; border:1px solid var(--line); border-radius:4px; text-decoration:none;">View Details</a>
+            `);
+          markers.push(marker);
+        }
+      });
+    }
+
     map.on('popupopen', (e) => {
       const btn = e.popup.getElement().querySelector('.accept-map-btn');
       if (btn) {
         btn.addEventListener('click', () => {
           const donId = btn.dataset.id;
-          const currentUser = JSON.parse(localStorage.getItem('fs360_currentUser'));
           const allDons = JSON.parse(localStorage.getItem('fs360_donations') || '[]');
 
           const don = allDons.find(item => item.id === donId);
@@ -2063,14 +2097,10 @@
 
   function initAcceptedDonations() {
     const container = $('#acceptedDonationsList');
-    if (!container) return;
-
     const currentUser = JSON.parse(localStorage.getItem('fs360_currentUser'));
+    if (!currentUser) return;
     const donations = JSON.parse(localStorage.getItem('fs360_donations') || '[]');
     const acceptedDons = donations.filter(d => d.ngoEmail === currentUser.email);
-    
-    // Also initialize Leaflet Map on dashboard for active pickups routing
-    initAcceptedPickupsMap(acceptedDons);
 
     // Compute dynamic dashboard stats if on NGO Dashboard page
     const statsPeopleServedEl = $('#statsPeopleServed');
@@ -2113,11 +2143,16 @@
       }
     }
 
+    if (!container) return;
+
+    // Also initialize Leaflet Map on accepted-donations.html for active pickups routing
+    initAcceptedPickupsMap(acceptedDons);
+
     if (acceptedDons.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
           <p>You haven't accepted any donations yet.</p>
-          <a href="available-donations.html" class="btn btn-accent btn-sm">Browse Available Food</a>
+          <a href="ngo-dashboard.html#availableDonationsSection" class="btn btn-accent btn-sm">Browse Available Food</a>
         </div>`;
       return;
     }
@@ -2320,7 +2355,7 @@
         tableContainer.innerHTML = `
           <div class="empty-state">
             <p>You haven't accepted any donations yet to generate a report.</p>
-            <a href="available-donations.html" class="btn btn-accent btn-sm">Browse Available Food</a>
+            <a href="ngo-dashboard.html#availableDonationsSection" class="btn btn-accent btn-sm">Browse Available Food</a>
           </div>`;
         return;
       }

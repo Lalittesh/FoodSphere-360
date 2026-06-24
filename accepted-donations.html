@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Accepted Pickups — FoodSphere 360</title>
 <meta name="description" content="Manage and coordinate logistics for surplus food donations you have accepted on FoodSphere 360.">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -38,11 +40,17 @@
         <p style="color: var(--ink-soft); margin-top: 6px;">Coordinate collection windows, print details, and update statuses once distributed.</p>
       </div>
       <div>
-        <a href="available-donations.html" class="btn btn-accent btn-lg" data-transition>
+        <a href="ngo-dashboard.html#availableDonationsSection" class="btn btn-accent btn-lg" data-transition>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
           Browse Available Food
         </a>
       </div>
+    </div>
+
+    <!-- INTERACTIVE LOGISTICS MAP -->
+    <div class="dashboard-card" style="margin-bottom: 30px;">
+      <h3>Active Accepted Pickups Map</h3>
+      <div id="map" style="height: 350px; border-radius: var(--radius-sm); border: 1px solid var(--line); z-index: 10;"></div>
     </div>
 
     <!-- TABLE CONTAINER -->
